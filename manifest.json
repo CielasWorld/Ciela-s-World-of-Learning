@@ -1,0 +1,25 @@
+{
+  "name": "Ciela's World of Learning",
+  "short_name": "Ciela's World",
+  "description": "Numbers, counting, shapes, colors and letters with Ciela and Chispa.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#8FD8EA",
+  "theme_color": "#0E7C86",
+  "icons": [
+    {
+      "src": "appIcon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "appIconMaskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
