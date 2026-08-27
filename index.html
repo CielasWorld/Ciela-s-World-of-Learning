@@ -218,7 +218,7 @@ body{
 .teacher:hover,.teacher:focus-visible{transform:scale(1.04)}
 .teacher:focus-visible{outline:4px solid #fff;outline-offset:6px;border-radius:22px}
 
-.ciela{height:clamp(88px,22vh,210px);width:auto;filter:drop-shadow(0 8px 14px rgba(9,60,70,.35));display:block}
+.ciela{height:clamp(88px,22vh,210px);width:auto;object-fit:contain;filter:drop-shadow(0 8px 14px rgba(9,60,70,.35));display:block}
 .ciela[hidden]{display:none}
 
 .speaker{
@@ -230,7 +230,7 @@ body{
   font-size:clamp(13px,3.4vw,20px);line-height:1;
 }
 
-.pup{height:clamp(52px,13vh,112px);width:auto;filter:drop-shadow(0 6px 12px rgba(9,60,70,.32));transform-origin:bottom center}
+.pup{height:clamp(52px,13vh,112px);width:auto;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(9,60,70,.32));transform-origin:bottom center}
 .pup[hidden]{display:none}
 
 .teacher.cheer,.pup.cheer{animation:hop .65s cubic-bezier(.34,1.56,.64,1) 2}
@@ -2493,6 +2493,17 @@ body{
 
   var calmState = null;
   var calmNoise = null;
+  var calmLook = false;   /* true while the pair are sitting in lotus */
+
+  var NORMAL_LOOK = { ciela:'cielaBust.png', chispa:'chispa-content.png' };
+  var CALM_LOOK   = { ciela:'ciela-calm.png', chispa:'chispa-calm.png' };
+
+  function setCrewLook(calm){
+    calmLook = !!calm;
+    var look = calm ? CALM_LOOK : NORMAL_LOOK;
+    if(ciela && !ciela.hidden)   ciela.src  = look.ciela;
+    if(chispa && !chispa.hidden) chispa.src = look.chispa;
+  }
 
   function faceSVG(f){
     return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
@@ -2583,6 +2594,7 @@ body{
 
   function startCalm(){
     stopCalmNoise();
+    setCrewLook(true);
     calmState = { breaths:0 };
     buildGems(gemRow, 0);
     askFeeling();
@@ -3877,6 +3889,11 @@ body{
 
   function chispaFace(mood){
     if(!chispa || chispa.hidden) return;
+    if(calmLook){
+      /* he stays settled through the calm routine */
+      chispa.src = CALM_LOOK.chispa;
+      return;
+    }
     var src;
     if(mood === 'cheer'){
       var pool = CHISPA_FACE.cheer;
@@ -4034,6 +4051,7 @@ body{
     crystalState = null;
     stopCalmNoise();
     stopVoice();
+    setCrewLook(false);
     chispaFace('rest');
   }
 
