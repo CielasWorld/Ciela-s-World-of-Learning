@@ -823,16 +823,17 @@ body{
 
   /* every distinct thing a mode can ask about, in teaching order */
   function itemsFor(key){
-    if(key === 'numbers')  return numberPool().map(String);
-    if(key === 'counting') return [1,2,3,4,5,6,7,8].map(String);
-    if(key === 'shapes')   return SHAPES.map(function(s){ return s.key; });
-    if(key === 'colors')   return COLORS.map(function(c){ return c.key; });
-    if(key === 'letters')  return PROPS.map(function(p){ return p.letter; }).sort();
+    if(key === 'numbers')   return numberPool().map(String);
+    if(key === 'counting')  return [1,2,3,4,5,6,7,8].map(String);
+    if(key === 'shapes')    return SHAPES.map(function(s){ return s.key; });
+    if(key === 'colors')    return COLORS.map(function(c){ return c.key; });
+    if(key === 'letters')   return PROPS.map(function(p){ return p.letter; }).sort();
+    if(key === 'lowercase') return PROPS.map(function(p){ return p.letter.toLowerCase(); }).sort();
     return [];
   }
 
   function itemLabel(key, id){
-    if(key === 'letters') return id;
+    if(key === 'letters' || key === 'lowercase') return id;
     if(key === 'counting') return id;
     return id.charAt(0).toUpperCase() + id.slice(1);
   }
@@ -952,7 +953,8 @@ body{
      ========================================================== */
 
   function keyOfItem(mKey, item){
-    if(mKey === 'letters') return item.letter;
+    if(mKey === 'letters')   return item.letter;
+    if(mKey === 'lowercase') return item.letter.toLowerCase();
     if(item && typeof item === 'object') return item.key;
     return String(item);
   }
@@ -1131,6 +1133,34 @@ body{
                 target.letter + ' is for ' + target.one + '. Find the ' + target.letter + '.'];
       },
       render: function(value){ return glyphButton(value, 'letter ' + value); }
+    },
+
+    /* Lowercase is what a child actually meets in books and on signs.
+       The letter's NAME is the same, so the recorded lines are reused
+       as-is: hearing "A is for apple" while looking at a lowercase a
+       is exactly the association being taught. */
+    lowercase: {
+      label: 'Small Letters',
+      icon: 'paintbrush-transparent.png',
+      done: 'You found all the small letters!',
+      plan: function(){ return adaptivePlan('lowercase', PROPS.slice(), 10, false); },
+      answer: function(target){ return target.letter.toLowerCase(); },
+      itemKey: function(target){ return target.letter.toLowerCase(); },
+      choices: function(target, round){
+        var count = round <= 3 ? 2 : round <= 6 ? 3 : 4;
+        var small = target.letter.toLowerCase();
+        var pool = ALPHABET.map(function(L){ return L.toLowerCase(); });
+        return shuffle([small].concat(sample(pool, count - 1, small)));
+      },
+      prompt: function(target){
+        return '<img src="' + target.file + '" alt="" onerror="this.remove()">' +
+               '<span><em>' + target.letter.toLowerCase() + '</em> is for ' + target.one + '</span>';
+      },
+      speak: function(target){
+        return ['letter-' + target.letter,
+                target.letter + ' is for ' + target.one + '. Find the small ' + target.letter + '.'];
+      },
+      render: function(value){ return glyphButton(value, 'small letter ' + value); }
     }
   };
 
