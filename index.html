@@ -136,6 +136,7 @@ body{
 }
 
 .pick svg{display:block;width:var(--size);height:var(--size);filter:drop-shadow(0 6px 10px rgba(9,60,70,.4))}
+.pick img{display:block;width:var(--size);height:auto;filter:drop-shadow(0 6px 10px rgba(9,60,70,.4))}
 
 .pick.correct{animation:pop .55s cubic-bezier(.34,1.56,.64,1) forwards}
 @keyframes pop{
@@ -480,6 +481,23 @@ body{
   var CHEERS = ['Great job!','You got it!','Nice tapping!','Well done!','That is the one!'];
   var ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
+  /* Letters whose initial sound is unambiguous in this prop set.
+     Deliberately left out:
+       A E I O U - vowel sounds can't be voiced without naming a word,
+                   and naming the word gives the answer away
+       C         - canteen says /k/, which collides with key
+       G         - "magnifying glass" starts with an m sound, not a g
+       Q         - quill is a /kw/ blend, not a single sound
+       X         - xylophone actually starts with a z sound (the classic trap) */
+  var SOUND_LETTERS = 'BDFHJKLMNPRSTVWYZ'.split('');
+
+  /* How each sound is spelled out for the voice line and the fallback. */
+  var SOUND_SAY = {
+    B:'buh', D:'duh', F:'ffff', H:'huh', J:'juh', K:'kuh', L:'llll',
+    M:'mmmm', N:'nnnn', P:'puh', R:'rrrr', S:'ssss', T:'tuh',
+    V:'vvvv', W:'wuh', Y:'yuh', Z:'zzzz'
+  };
+
   /* Prop art already in the repo. `many` drives the counting prompts (always
      plural — "How many lanterns?" reads naturally even when there is one),
      `letter` drives the alphabet clues, `key` names the audio clip. */
@@ -652,6 +670,7 @@ body{
     for(i = 0; i < SHAPES.length; i++) loadClip('shape-' + SHAPES[i].key, 'shape-' + SHAPES[i].key);
     for(i = 0; i < COLORS.length; i++) loadClip('color-' + COLORS[i].key, 'color-' + COLORS[i].key);
     ALPHABET.forEach(function(L){ loadClip('letter-' + L, 'letter-' + L.toLowerCase()); });
+    SOUND_LETTERS.forEach(function(L){ loadClip('sound-' + L, 'sound-' + L.toLowerCase()); });
     PROPS.forEach(function(p){ loadClip('count-' + p.key, 'count-' + p.key); });
   })();
 
@@ -829,11 +848,12 @@ body{
     if(key === 'colors')    return COLORS.map(function(c){ return c.key; });
     if(key === 'letters')   return PROPS.map(function(p){ return p.letter; }).sort();
     if(key === 'lowercase') return PROPS.map(function(p){ return p.letter.toLowerCase(); }).sort();
+    if(key === 'sounds')    return soundProps().map(function(p){ return p.letter; }).sort();
     return [];
   }
 
   function itemLabel(key, id){
-    if(key === 'letters' || key === 'lowercase') return id;
+    if(key === 'letters' || key === 'lowercase' || key === 'sounds') return id;
     if(key === 'counting') return id;
     return id.charAt(0).toUpperCase() + id.slice(1);
   }
@@ -862,6 +882,10 @@ body{
   function sample(list, count, exclude){
     var pool = list.filter(function(x){ return x !== exclude; });
     return shuffle(pool.slice()).slice(0, count);
+  }
+
+  function soundProps(){
+    return PROPS.filter(function(p){ return SOUND_LETTERS.indexOf(p.letter) > -1; });
   }
 
   function numberPool(){
@@ -955,6 +979,7 @@ body{
   function keyOfItem(mKey, item){
     if(mKey === 'letters')   return item.letter;
     if(mKey === 'lowercase') return item.letter.toLowerCase();
+    if(mKey === 'sounds')    return item.letter;
     if(item && typeof item === 'object') return item.key;
     return String(item);
   }
@@ -1161,6 +1186,41 @@ body{
                 target.letter + ' is for ' + target.one + '. Find the small ' + target.letter + '.'];
       },
       render: function(value){ return glyphButton(value, 'small letter ' + value); }
+    },
+
+    /* Initial-sound isolation: Ciela says a sound, the child picks the
+       picture that starts with it. No letter is shown, on purpose —
+       the whole task is listening. */
+    sounds: {
+      label: 'Sounds',
+      icon: 'bird-signal-whistle-transparent.png',
+      done: 'You heard every sound!',
+      plan: function(){ return adaptivePlan('sounds', soundProps(), 10, false); },
+      itemKey: function(target){ return target.letter; },
+      choices: function(target, round){
+        var count = round <= 3 ? 2 : round <= 6 ? 3 : 4;
+        return shuffle([target].concat(sample(soundProps(), count - 1, target)));
+      },
+      prompt: function(){
+        return '<span>Which one starts with this sound?</span>';
+      },
+      speak: function(target){
+        var say = SOUND_SAY[target.letter] || target.letter;
+        return ['sound-' + target.letter,
+                say + '. Which one starts with ' + say + '?'];
+      },
+      render: function(value){
+        var b = document.createElement('button');
+        b.className = 'pick';
+        b.type = 'button';
+        var img = document.createElement('img');
+        img.src = value.file;
+        img.alt = '';
+        b.appendChild(img);
+        b.setAttribute('aria-label', value.one);
+        return b;
+      },
+      same: function(a, b){ return a.letter === b.letter; }
     }
   };
 
