@@ -459,6 +459,121 @@ body{
 .level .lv-sub{font-family:'Nunito',sans-serif;font-weight:700;font-size:clamp(11px,2.8vw,13px);color:#5b7f88}
 .level .lv-stars{margin-left:auto;font-size:clamp(11px,2.8vw,14px);color:var(--gold);font-weight:800;white-space:nowrap}
 
+/* ---------- crystal garden ---------- */
+
+.garden{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  gap:clamp(4px,1.4vh,12px);
+  padding:clamp(4px,1.2vw,12px);
+  overflow:hidden;
+}
+
+.garden-field{
+  position:relative;
+  flex:1;min-height:0;
+}
+
+.crystal{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  border:0;background:none;padding:4px;cursor:pointer;
+  animation:drift var(--dur) ease-in-out var(--delay) infinite alternate;
+  touch-action:manipulation;
+}
+.crystal svg{
+  display:block;width:var(--size);height:auto;
+  filter:drop-shadow(0 5px 10px rgba(9,60,70,.45));
+  transition:filter .25s ease;
+}
+.crystal:focus-visible{outline:4px solid #fff;outline-offset:5px;border-radius:14px}
+
+.crystal.counted svg{filter:drop-shadow(0 0 14px rgba(255,255,255,.95)) brightness(1.12)}
+.crystal.counted::after{
+  content:attr(data-n);
+  position:absolute;top:-6px;right:-6px;
+  min-width:clamp(19px,5vw,30px);height:clamp(19px,5vw,30px);
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+  background:linear-gradient(150deg,var(--gold-light),var(--gold));
+  color:var(--navy);
+  font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:clamp(11px,3vw,17px);line-height:1;
+  box-shadow:0 2px 7px rgba(9,60,70,.45);
+  animation:matchPop .4s cubic-bezier(.34,1.56,.64,1);
+}
+.crystal.flyaway{animation:flyOff .55s ease-in forwards}
+@keyframes flyOff{
+  to{transform:translate(-50%,-50%) translate(var(--fx),var(--fy)) scale(.15) rotate(140deg);opacity:0}
+}
+
+.garden-ask{
+  flex:0 0 auto;
+  display:flex;flex-wrap:wrap;gap:clamp(8px,3vw,22px);
+  align-items:center;justify-content:center;
+  padding-bottom:2px;
+  min-height:0;
+}
+.garden-ask[hidden]{display:none}
+
+.numpick{
+  width:var(--pick,66px);height:var(--pick,66px);
+  border:0;border-radius:20px;cursor:pointer;
+  font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:calc(var(--pick,66px) * .5);line-height:1;
+  color:var(--navy);
+  background:linear-gradient(165deg,#FFFFFF,#CFEDF1);
+  box-shadow:inset 0 0 0 3px var(--gold),0 5px 0 rgba(11,90,98,.5),0 9px 16px rgba(9,60,70,.32);
+  transition:transform .16s ease;
+  animation:matchPop .45s cubic-bezier(.34,1.56,.64,1);
+}
+.numpick:active{transform:translateY(4px)}
+.numpick:focus-visible{outline:4px solid #fff;outline-offset:3px}
+.numpick.nope{animation:wobbleStatic .45s ease}
+.garden-ask.locked .numpick{pointer-events:none}
+
+.chest-target{
+  position:absolute;right:6%;bottom:4%;
+  width:clamp(40px,11vw,78px);height:auto;opacity:.9;
+  pointer-events:none;
+}
+
+/* ---------- printable certificate ---------- */
+
+.cert{
+  width:min(94vw,620px);
+  background:#fff;color:var(--navy);
+  border-radius:22px;padding:clamp(18px,5vw,38px);
+  text-align:center;
+  box-shadow:0 14px 34px rgba(8,50,60,.45),inset 0 0 0 4px var(--gold);
+}
+.cert h2{
+  font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:clamp(21px,6vw,34px);color:var(--teal);margin-bottom:4px;
+}
+.cert .who{
+  font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:clamp(24px,7vw,40px);
+  border-bottom:3px dashed rgba(14,124,134,.4);
+  padding:10px 6px 6px;margin:10px 0;
+}
+.cert p{color:#43606d;font-size:clamp(12px,3.2vw,16px);font-weight:700;max-width:none}
+.cert .cert-stats{
+  display:flex;gap:clamp(10px,4vw,28px);justify-content:center;
+  margin-top:14px;flex-wrap:wrap;
+}
+.cert .stat{display:flex;flex-direction:column}
+.cert .stat b{font-family:'Baloo 2',cursive;font-size:clamp(20px,6vw,32px);color:var(--gold)}
+.cert .stat span{font-size:clamp(10px,2.6vw,13px);color:#5b7f88;font-weight:800}
+
+@media print{
+  body{background:#fff}
+  .stage,.veil{display:none!important}
+  #certVeil{display:flex!important;position:static;background:none;backdrop-filter:none;padding:0}
+  #certVeil .go,#certVeil h1{display:none!important}
+  .cert{box-shadow:none;border:3px solid #E8B75A}
+}
+
 /* ---------- stepping stones ---------- */
 
 .stream-wrap{
@@ -789,6 +904,15 @@ body{
   <button class="grownups" id="grownupsBtn">For grown-ups</button>
 </div>
 
+<div class="veil" id="certVeil" hidden>
+  <h1>Certificate</h1>
+  <div class="cert" id="certBody"></div>
+  <div class="row">
+    <button class="go ghost" id="certPrint">Print</button>
+    <button class="go ghost" id="certClose">Done</button>
+  </div>
+</div>
+
 <div class="veil" id="vaultVeil" hidden>
   <h1>Your Treasures</h1>
   <p id="vaultLine">Earn stars to find more.</p>
@@ -808,6 +932,7 @@ body{
   <div class="report-body" id="reportBody"></div>
   <div class="row">
     <button class="go ghost" id="reportClose">Done</button>
+    <button class="go ghost" id="reportCert">Certificate</button>
     <button class="go ghost danger" id="reportReset">Start over</button>
   </div>
 </div>
@@ -861,6 +986,20 @@ body{
 
   /* Number Stepping Stones. Sequences are fixed so a parent can see
      exactly which ones a child has managed. */
+  var CRYSTAL_COLOURS = [
+    { key:'blue',   name:'blue',   hi:'#BFE9FF', mid:'#4EA8E8', low:'#1F5FA8' },
+    { key:'purple', name:'purple', hi:'#E6D2FF', mid:'#9B6BE0', low:'#5B2F9E' },
+    { key:'pink',   name:'pink',   hi:'#FFD9EC', mid:'#F07FB4', low:'#B23A75' },
+    { key:'green',  name:'green',  hi:'#D5F7DE', mid:'#57C67F', low:'#1F7A47' },
+    { key:'gold',   name:'gold',   hi:'#FFF0C4', mid:'#EDBB55', low:'#A9761C' }
+  ];
+
+  var CRYSTAL_WIN = ['Crystal counting complete!','Wonderful counting!',
+                     'You found the correct number!','You are becoming a Crystal Champion!'];
+  var CRYSTAL_TRY = ['Almost! Let us count them together.',
+                     'Good try! Tap each crystal slowly.',
+                     'Let us check our counting one more time.'];
+
   function runOf(start, step, len){
     var a = [];
     for(var i = 0; i < len; i++) a.push(start + i * step);
@@ -1080,6 +1219,10 @@ body{
     for(i = 1; i <= 6; i++) loadClip('cheer-' + i, 'cheer-' + i);
     loadClip('win', 'win');
     loadClip('stones-go', 'stones-go');
+    for(i = 1; i <= 10; i++) loadClip('num-' + i, 'num-' + i);
+    for(i = 1; i <= 4; i++) loadClip('yay-' + i, 'yay-' + i);
+    for(i = 1; i <= 3; i++) loadClip('retry-' + i, 'retry-' + i);
+    CRYSTAL_COLOURS.forEach(function(c){ loadClip('crystal-' + c.key, 'crystal-' + c.key); });
     loadClip('correct', 'correct');
     loadClip('wrong', 'wrong');
     for(i = 0; i < SHAPES.length; i++) loadClip('shape-' + SHAPES[i].key, 'shape-' + SHAPES[i].key);
@@ -1121,6 +1264,7 @@ body{
     return !wakeVeil.hidden || !homeVeil.hidden || !winVeil.hidden ||
            !document.getElementById('levelVeil').hidden ||
            !document.getElementById('vaultVeil').hidden ||
+           !document.getElementById('certVeil').hidden ||
            !document.getElementById('gateVeil').hidden ||
            !document.getElementById('reportVeil').hidden;
   }
@@ -1277,6 +1421,7 @@ body{
     if(key === 'colors')    return COLORS.map(function(c){ return c.key; });
     if(key === 'letters')   return PROPS.map(function(p){ return p.letter; }).sort();
     if(key === 'lowercase') return PROPS.map(function(p){ return p.letter.toLowerCase(); }).sort();
+    if(key === 'crystals')  return numberPool().map(String);
     if(key.indexOf('bridge-') === 0) return levelById(key.slice(7)).words.slice().sort();
     if(key.indexOf('stones-') === 0) return stoneLevelById(key.slice(7)).puzzles.map(function(q){ return q.id; });
     return [];
@@ -1680,6 +1825,15 @@ body{
       start: function(){ buildDeck(this.pairs); }
     },
 
+    crystals: {
+      label: "Ciela's Crystals",
+      icon: 'crystal-sky-lantern-transparent.png',
+      done: 'The chest is full of crystals!',
+      custom: true,
+      roundsPerGame: 5,
+      start: function(){ startCrystals(); }
+    },
+
     stones: {
       label: 'Stepping Stones',
       icon: 'brass-sundial-transparent.png',
@@ -1984,6 +2138,248 @@ body{
       st.busy = false;
       st.deck.classList.remove('locked');
     }, 1100);
+  }
+
+  /* ==========================================================
+     Count Ciela's Crystals
+
+     The point of this one is one-to-one correspondence: every crystal
+     gets exactly one number word. That is why the child taps each stone
+     and hears it counted before any numeral is offered.
+     ========================================================== */
+
+  var crystalState = null;
+  var gradSeq = 0;
+
+  function crystalSVG(c){
+    var id = 'cg' + (++gradSeq);
+    return '<svg viewBox="0 0 100 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0.4" y2="1">' +
+      '<stop offset="0%" stop-color="#FFFFFF"/><stop offset="22%" stop-color="' + c.hi + '"/>' +
+      '<stop offset="62%" stop-color="' + c.mid + '"/><stop offset="100%" stop-color="' + c.low + '"/>' +
+      '</linearGradient></defs>' +
+      '<g stroke="#E8B75A" stroke-width="4" stroke-linejoin="round">' +
+      '<path fill="url(#' + id + ')" d="M50 4 L86 40 L64 126 L36 126 L14 40 Z"/>' +
+      '<path fill="rgba(255,255,255,.30)" stroke="none" d="M50 4 L86 40 L50 52 Z"/>' +
+      '<path fill="rgba(0,0,0,.13)" stroke="none" d="M50 52 L86 40 L64 126 Z"/>' +
+      '</g></svg>';
+  }
+
+  function crystalsMastered(){
+    var seen = progress.crystals || {}, n = 0;
+    for(var i = 1; i <= 10; i++) if(seen[i] && seen[i].right > 0) n++;
+    return n;
+  }
+
+  function startCrystals(){
+    var pool = numberPool();
+    var plan = adaptivePlan('crystals', pool, mode.roundsPerGame, true);
+    /* once every number is solid, rounds mix colours instead */
+    crystalState = { list:plan, at:0, mixed:crystalsMastered() >= 10, earned:[] };
+    buildGems(gemRow, plan.length);
+    nextGarden();
+  }
+
+  function sizeGarden(count){
+    var box = field.getBoundingClientRect();
+    var w = Math.max(160, box.width), h = Math.max(160, box.height);
+    var per = Math.ceil(Math.sqrt(count * (w / Math.max(1, h))));
+    var size = Math.min(w / (per + 0.6), h / (Math.ceil(count / Math.max(1, per)) + 1.4), 108);
+    var pick = Math.min(w / 5, h * 0.2, 82);
+    return { size:Math.max(34, size), pick:Math.max(44, pick) };
+  }
+
+  function nextGarden(){
+    stopVoice();
+    var st = crystalState;
+    if(!st) return;
+
+    var target = st.list[st.at];
+    var colour = CRYSTAL_COLOURS[Math.floor(Math.random() * CRYSTAL_COLOURS.length)];
+    st.target = target;
+    st.colour = colour;
+    st.counted = 0;
+    st.clean = true;
+    st.answered = false;
+
+    field.innerHTML = '';
+    prompt.innerHTML = '<span>Count the <em>' + colour.name + '</em> crystals</span>';
+
+    var garden = document.createElement('div');
+    garden.className = 'garden';
+    var plot = document.createElement('div');
+    plot.className = 'garden-field';
+
+    /* Color Count: distractor crystals in other colours, only the
+       target colour is to be counted */
+    var others = [];
+    if(st.mixed){
+      var otherPool = CRYSTAL_COLOURS.filter(function(c){ return c.key !== colour.key; });
+      var extra = 2 + Math.floor(Math.random() * 3);
+      for(var e = 0; e < extra; e++){
+        others.push(otherPool[Math.floor(Math.random() * otherPool.length)]);
+      }
+    }
+
+    var total = target + others.length;
+    var sz = sizeGarden(total);
+    var slots = shuffle(scatterSlots(total));
+
+    var made = 0;
+    function addCrystal(c, isTarget){
+      var b = document.createElement('button');
+      b.className = 'crystal';
+      b.type = 'button';
+      b.innerHTML = crystalSVG(c);
+      b.setAttribute('aria-label', c.name + ' crystal');
+      b.style.setProperty('--size', sz.size.toFixed(0) + 'px');
+      var pos = slots[made++];
+      b.style.left = pos.x + '%';
+      b.style.top = pos.y + '%';
+      b.style.setProperty('--dur', (2.6 + Math.random() * 1.8).toFixed(2) + 's');
+      b.style.setProperty('--delay', (Math.random() * 1.4).toFixed(2) + 's');
+      b.style.setProperty('--tilt', (Math.random() * 8 - 4).toFixed(1) + 'deg');
+      b.addEventListener('click', function(){ tapCrystal(b, isTarget); });
+      plot.appendChild(b);
+    }
+
+    for(var i = 0; i < target; i++) addCrystal(colour, true);
+    others.forEach(function(c){ addCrystal(c, false); });
+
+    var ask = document.createElement('div');
+    ask.className = 'garden-ask';
+    ask.hidden = true;
+
+    garden.appendChild(plot);
+    garden.appendChild(ask);
+    field.appendChild(garden);
+
+    st.plot = plot; st.ask = ask; st.size = sz;
+    setTimeout(function(){ playClip('crystal-' + colour.key); }, 320);
+  }
+
+  /* spread positions on a loose grid so crystals never sit on top of each other */
+  function scatterSlots(n){
+    var cols = Math.ceil(Math.sqrt(n * 1.4)) || 1;
+    var rows = Math.ceil(n / cols);
+    var out = [];
+    for(var r = 0; r < rows; r++){
+      for(var c = 0; c < cols && out.length < n; c++){
+        out.push({
+          x: ((c + 0.5) / cols) * 76 + 12 + (Math.random() * 6 - 3),
+          y: ((r + 0.5) / rows) * 68 + 16 + (Math.random() * 6 - 3)
+        });
+      }
+    }
+    return out;
+  }
+
+  function tapCrystal(btn, isTarget){
+    var st = crystalState;
+    if(!st || st.answered) return;
+    if(btn.classList.contains('counted')) return;
+
+    if(!isTarget){
+      /* a wrong-colour crystal: no penalty, just a nudge */
+      st.clean = false;
+      btn.classList.remove('nope');
+      void btn.offsetWidth;
+      btn.classList.add('nope');
+      thud();
+      return;
+    }
+
+    st.counted++;
+    btn.classList.add('counted');
+    btn.setAttribute('data-n', st.counted);
+    sparkle(btn);
+    playClip('num-' + st.counted);
+
+    if(st.counted >= st.target) setTimeout(showChoices, 700);
+  }
+
+  function showChoices(){
+    var st = crystalState;
+    if(!st || st.answered) return;
+
+    var choices = [st.target];
+    var guard = 0;
+    while(choices.length < 3 && guard++ < 200){
+      var d = st.target + (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 2));
+      if(d >= 1 && d <= 12 && choices.indexOf(d) === -1) choices.push(d);
+    }
+    shuffle(choices);
+
+    st.ask.innerHTML = '';
+    choices.forEach(function(n){
+      var b = document.createElement('button');
+      b.className = 'numpick';
+      b.type = 'button';
+      b.textContent = n;
+      b.setAttribute('aria-label', WORDS[n] || String(n));
+      b.style.setProperty('--pick', st.size.pick.toFixed(0) + 'px');
+      b.addEventListener('click', function(){ answerCount(n, b); });
+      st.ask.appendChild(b);
+    });
+    st.ask.hidden = false;
+    prompt.innerHTML = '<span>How many did you count?</span>';
+  }
+
+  function answerCount(n, btn){
+    var st = crystalState;
+    if(!st || st.answered) return;
+
+    if(n !== st.target){
+      st.clean = false;
+      thud();
+      btn.classList.remove('nope');
+      void btn.offsetWidth;
+      btn.classList.add('nope');
+      react('nudge');
+      prompt.innerHTML = '<span>' + CRYSTAL_TRY[Math.floor(Math.random() * CRYSTAL_TRY.length)] + '</span>';
+      playClip('retry-' + (1 + Math.floor(Math.random() * CRYSTAL_TRY.length)));
+      return;
+    }
+
+    st.answered = true;
+    st.ask.classList.add('locked');
+    chime();
+    react('cheer');
+    record('crystals', String(st.target), st.clean);
+    if(st.clean) st.earned = st.earned.concat(addStars(1));
+    lightGems(gemRow, st.at + 1);
+    prompt.innerHTML = '<span>' + CRYSTAL_WIN[Math.floor(Math.random() * CRYSTAL_WIN.length)] + '</span>';
+    setTimeout(function(){ playClip('yay-' + (1 + Math.floor(Math.random() * CRYSTAL_WIN.length))); }, 280);
+
+    /* crystals fly off to the chest */
+    var flyers = st.plot.querySelectorAll('.crystal.counted');
+    for(var i = 0; i < flyers.length; i++){
+      (function(el, k){
+        setTimeout(function(){
+          el.style.setProperty('--fx', '38vw');
+          el.style.setProperty('--fy', '26vh');
+          el.classList.add('flyaway');
+        }, 90 * k);
+      })(flyers[i], i);
+    }
+
+    setTimeout(function(){
+      st.at++;
+      if(st.at >= st.list.length) finishCrystals();
+      else nextGarden();
+    }, 1900);
+  }
+
+  function finishCrystals(){
+    var st = crystalState;
+    winTitle.textContent = mode.done;
+    buildGems(trophy, st.list.length);
+    lightGems(trophy, st.list.length);
+    showPrize(st.earned.concat(addStars(1)));
+    refreshChest();
+    winVeil.hidden = false;
+    setTimeout(function(){ playClip('win'); }, 420);
+    setTimeout(toMenuMusic, 1400);
   }
 
   /* ==========================================================
@@ -2536,6 +2932,7 @@ body{
     bridgeState = null;
     levelVeil.hidden = true;
     vaultVeil.hidden = true;
+    document.getElementById('certVeil').hidden = true;
     document.getElementById('prize').hidden = true;
     refreshChest();
     field.innerHTML = '';
@@ -2710,6 +3107,44 @@ body{
 
   document.getElementById('vaultClose').addEventListener('click', function(){
     vaultVeil.hidden = true;
+    homeVeil.hidden = false;
+    refreshChest();
+  });
+
+  /* ---------- printable certificate ---------- */
+
+  function openCertificate(){
+    var stars = totalStars();
+    var found = unlockedCount();
+    var counted = crystalsMastered();
+    var words = 0;
+    BRIDGE_LEVELS.forEach(function(lv){ words += starsFor(lv.id); });
+
+    var body = document.getElementById('certBody');
+    body.innerHTML =
+      '<h2>Crystal Champion</h2>' +
+      '<p>This certificate is proudly awarded to</p>' +
+      '<div class="who">&nbsp;</div>' +
+      '<p>for counting, spelling and exploring with Ciela and Chispa.</p>' +
+      '<div class="cert-stats">' +
+        '<span class="stat"><b>' + stars + '</b><span>STARS</span></span>' +
+        '<span class="stat"><b>' + found + '/' + TREASURES.length + '</b><span>TREASURES</span></span>' +
+        '<span class="stat"><b>' + counted + '/10</b><span>NUMBERS</span></span>' +
+        '<span class="stat"><b>' + words + '</b><span>WORDS BUILT</span></span>' +
+      '</div>';
+
+    reportVeil.hidden = true;
+    document.getElementById('certVeil').hidden = false;
+  }
+
+  document.getElementById('reportCert').addEventListener('click', openCertificate);
+
+  document.getElementById('certPrint').addEventListener('click', function(){
+    window.print();
+  });
+
+  document.getElementById('certClose').addEventListener('click', function(){
+    document.getElementById('certVeil').hidden = true;
     homeVeil.hidden = false;
     refreshChest();
   });
