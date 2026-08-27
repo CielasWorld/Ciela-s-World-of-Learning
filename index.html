@@ -459,6 +459,81 @@ body{
 .level .lv-sub{font-family:'Nunito',sans-serif;font-weight:700;font-size:clamp(11px,2.8vw,13px);color:#5b7f88}
 .level .lv-stars{margin-left:auto;font-size:clamp(11px,2.8vw,14px);color:var(--gold);font-weight:800;white-space:nowrap}
 
+/* ---------- stepping stones ---------- */
+
+.stream-wrap{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(6px,2vh,18px);
+  padding:clamp(4px,1.2vw,12px);
+  overflow:hidden;
+}
+
+.stream{
+  position:relative;
+  flex:0 0 auto;
+  display:flex;gap:clamp(4px,1.4vw,12px);
+  align-items:center;justify-content:center;
+  max-width:96%;
+  padding:clamp(10px,3vh,26px) clamp(6px,2vw,16px);
+  border-radius:22px;
+  background:linear-gradient(180deg,rgba(126,214,232,.55),rgba(58,164,192,.75));
+  box-shadow:inset 0 2px 10px rgba(9,60,70,.3),inset 0 0 0 2px rgba(255,255,255,.35);
+}
+
+/* moving sparkle on the water */
+.stream::after{
+  content:'';position:absolute;left:0;right:0;top:50%;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);
+  animation:current 3.2s linear infinite;
+}
+@keyframes current{
+  0%{transform:translateX(-40%)}100%{transform:translateX(40%)}
+}
+
+.stone{
+  position:relative;z-index:1;
+  width:var(--stone,58px);height:var(--stone,58px);
+  border-radius:46% 54% 50% 50%/52% 48% 54% 46%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:calc(var(--stone,58px) * .44);line-height:1;
+}
+
+.stone.gap{
+  background:rgba(255,255,255,.2);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.55);
+}
+.stone.set{
+  background:linear-gradient(165deg,#E4E9EC,#93A6AE);
+  color:#2C4450;
+  box-shadow:inset 0 0 0 3px var(--gold),0 4px 0 #6E828B,0 8px 14px rgba(9,60,70,.35);
+  animation:stoneDrop .34s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes stoneDrop{
+  0%{transform:translateY(-24px) scale(.7);opacity:0}
+  100%{transform:translateY(0) scale(1);opacity:1}
+}
+.stone.given{
+  background:linear-gradient(165deg,#DCE3E6,#A9B8BF);
+  color:#2C4450;
+  box-shadow:inset 0 0 0 3px rgba(232,183,90,.7),0 4px 0 #7C8E96;
+}
+.stream.done .stone{box-shadow:inset 0 0 0 3px var(--gold),0 4px 0 #6E828B,0 0 20px rgba(232,183,90,.8)}
+
+.walker{
+  position:absolute;z-index:2;
+  bottom:calc(100% - clamp(8px,2.4vh,20px));
+  left:0;
+  width:var(--walk,54px);height:auto;
+  transform:translateX(-50%);
+  transition:left .42s cubic-bezier(.34,1.4,.64,1);
+  filter:drop-shadow(0 5px 10px rgba(9,60,70,.45));
+  pointer-events:none;
+}
+.walker[hidden]{display:none}
+.walker.hop{animation:hop .42s cubic-bezier(.34,1.56,.64,1)}
+
 /* ---------- word bridge ---------- */
 
 .bridge-wrap{
@@ -784,6 +859,43 @@ body{
       words:['apple','queen','wagon','zebra','flower','orange','violin'], blanks:0, decoys:3 }
   ];
 
+  /* Number Stepping Stones. Sequences are fixed so a parent can see
+     exactly which ones a child has managed. */
+  function runOf(start, step, len){
+    var a = [];
+    for(var i = 0; i < len; i++) a.push(start + i * step);
+    return a;
+  }
+
+  var STONE_LEVELS = [
+    { id:'cloud', name:'Cloud Beginner', badge:'\u2601\uFE0F',
+      note:'Five stones, two already placed', given:2, decoys:1,
+      puzzles:[
+        { id:'1-5',  seq:runOf(1,1,5) }, { id:'2-6',  seq:runOf(2,1,5) },
+        { id:'3-7',  seq:runOf(3,1,5) }, { id:'4-8',  seq:runOf(4,1,5) },
+        { id:'5-9',  seq:runOf(5,1,5) }, { id:'6-10', seq:runOf(6,1,5) }
+      ] },
+    { id:'golden', name:'Golden Explorer', badge:'\u2728',
+      note:'Seven stones, none placed', given:0, decoys:2,
+      puzzles:[
+        { id:'1-7',  seq:runOf(1,1,7) }, { id:'2-8',  seq:runOf(2,1,7) },
+        { id:'3-9',  seq:runOf(3,1,7) }, { id:'4-10', seq:runOf(4,1,7) }
+      ] },
+    { id:'crystal', name:'Crystal Champion', badge:'\uD83D\uDC8E',
+      note:'Counting in steps', given:1, decoys:2,
+      puzzles:[
+        { id:'twos',   seq:runOf(2,2,6) }, { id:'threes', seq:runOf(3,3,6) },
+        { id:'fives',  seq:runOf(5,5,6) }, { id:'tens',   seq:runOf(10,10,6) }
+      ] }
+  ];
+
+  function stoneLevelById(id){
+    for(var i = 0; i < STONE_LEVELS.length; i++){
+      if(STONE_LEVELS[i].id === id) return STONE_LEVELS[i];
+    }
+    return STONE_LEVELS[0];
+  }
+
   function levelById(id){
     for(var i = 0; i < BRIDGE_LEVELS.length; i++){
       if(BRIDGE_LEVELS[i].id === id) return BRIDGE_LEVELS[i];
@@ -967,6 +1079,7 @@ body{
     for(i = 1; i <= 10; i++) loadClip('find-' + i, 'find-' + i);
     for(i = 1; i <= 6; i++) loadClip('cheer-' + i, 'cheer-' + i);
     loadClip('win', 'win');
+    loadClip('stones-go', 'stones-go');
     loadClip('correct', 'correct');
     loadClip('wrong', 'wrong');
     for(i = 0; i < SHAPES.length; i++) loadClip('shape-' + SHAPES[i].key, 'shape-' + SHAPES[i].key);
@@ -1165,12 +1278,14 @@ body{
     if(key === 'letters')   return PROPS.map(function(p){ return p.letter; }).sort();
     if(key === 'lowercase') return PROPS.map(function(p){ return p.letter.toLowerCase(); }).sort();
     if(key.indexOf('bridge-') === 0) return levelById(key.slice(7)).words.slice().sort();
+    if(key.indexOf('stones-') === 0) return stoneLevelById(key.slice(7)).puzzles.map(function(q){ return q.id; });
     return [];
   }
 
   function itemLabel(key, id){
     if(key === 'letters' || key === 'lowercase') return id;
     if(key.indexOf('bridge-') === 0) return id;
+    if(key.indexOf('stones-') === 0) return id;
     if(key === 'counting') return id;
     return id.charAt(0).toUpperCase() + id.slice(1);
   }
@@ -1565,6 +1680,15 @@ body{
       start: function(){ buildDeck(this.pairs); }
     },
 
+    stones: {
+      label: 'Stepping Stones',
+      icon: 'brass-sundial-transparent.png',
+      done: 'Ciela crossed the stream!',
+      custom: true,
+      roundsPerGame: 4,
+      start: function(){ openStonePicker(); }
+    },
+
     bridge: {
       label: 'Word Bridge',
       icon: 'climbing-rope-transparent.png',
@@ -1760,6 +1884,12 @@ body{
     clearTimeout(relayoutTimer);
     relayoutTimer = setTimeout(layoutDeck, 100);
   }
+  window.addEventListener('resize', function(){
+    if(stoneState && stoneState.stream){
+      moveWalker(stoneState.stream, stoneState.walker,
+                 stoneState.given + stoneState.placed);
+    }
+  });
   window.addEventListener('resize', scheduleRelayout);
   window.addEventListener('orientationchange', scheduleRelayout);
   if(window.ResizeObserver){
@@ -1857,6 +1987,213 @@ body{
   }
 
   /* ==========================================================
+     Number Stepping Stones
+     ========================================================== */
+
+  var stoneState = null;
+
+  function stoneStars(levelId){
+    var seen = progress['stones-' + levelId] || {};
+    var n = 0;
+    Object.keys(seen).forEach(function(k){ if(seen[k].right > 0) n++; });
+    return n;
+  }
+
+  function openStonePicker(){
+    levelList.innerHTML = '';
+    document.querySelector('#levelVeil h1').textContent = 'Number Stepping Stones';
+    document.querySelector('#levelVeil p').textContent = 'Pick how tricky it should be.';
+
+    STONE_LEVELS.forEach(function(lv){
+      var b = document.createElement('button');
+      b.className = 'level'; b.type = 'button';
+      var badge = document.createElement('span');
+      badge.className = 'lv-badge'; badge.textContent = lv.badge;
+      var txt = document.createElement('span'); txt.className = 'lv-text';
+      var nm = document.createElement('span');
+      nm.className = 'lv-name'; nm.textContent = lv.name;
+      var sub = document.createElement('span');
+      sub.className = 'lv-sub'; sub.textContent = lv.note;
+      txt.appendChild(nm); txt.appendChild(sub);
+      var st = document.createElement('span');
+      st.className = 'lv-stars';
+      st.textContent = '\u2605 ' + stoneStars(lv.id) + '/' + lv.puzzles.length;
+      b.appendChild(badge); b.appendChild(txt); b.appendChild(st);
+      b.addEventListener('click', function(){
+        levelVeil.hidden = true;
+        startStones(lv);
+      });
+      levelList.appendChild(b);
+    });
+    levelVeil.hidden = false;
+  }
+
+  function startStones(lv){
+    var picked = shuffle(lv.puzzles.slice())
+                   .slice(0, Math.min(mode.roundsPerGame, lv.puzzles.length));
+    stoneState = { lv:lv, list:picked, at:0 };
+    buildGems(gemRow, picked.length);
+    nextCrossing();
+  }
+
+  function sizeStream(count, tileCount){
+    var box = field.getBoundingClientRect();
+    var w = Math.max(160, box.width), h = Math.max(160, box.height);
+    var stone = Math.min((w * 0.88) / count - 8, h * 0.18, 78);
+    var perRow = Math.min(tileCount, Math.max(4, Math.floor(w / 78)));
+    var tile = Math.min((w * 0.9) / perRow - 10, h * 0.16, 70);
+    return { stone:Math.max(28, stone), tile:Math.max(32, tile) };
+  }
+
+  function nextCrossing(){
+    stopVoice();
+    var st = stoneState;
+    if(!st) return;
+
+    var puzzle = st.list[st.at];
+    var seq = puzzle.seq;
+    st.seq = seq;
+    st.placed = 0;
+    st.clean = true;
+    st.given = Math.min(st.lv.given, seq.length - 1);
+
+    field.innerHTML = '';
+    prompt.innerHTML = '<span>Put the stones in order</span>';
+
+    var wrap = document.createElement('div');
+    wrap.className = 'stream-wrap';
+
+    var stream = document.createElement('div');
+    stream.className = 'stream';
+
+    var need = seq.slice(st.given);
+    var span = Math.max(1, seq[1] - seq[0]);
+    var extras = [];
+    var guard = 0;
+    while(extras.length < st.lv.decoys && guard++ < 200){
+      var cand = seq[0] + Math.floor(Math.random() * (seq.length + 3)) * span
+                 + (Math.random() < 0.5 ? 1 : -1);
+      if(cand > 0 && seq.indexOf(cand) === -1 && extras.indexOf(cand) === -1) extras.push(cand);
+    }
+    var pool = shuffle(need.concat(extras));
+    var sz = sizeStream(seq.length, pool.length);
+
+    seq.forEach(function(v, i){
+      var sn = document.createElement('span');
+      sn.style.setProperty('--stone', sz.stone.toFixed(0) + 'px');
+      if(i < st.given){ sn.className = 'stone given'; sn.textContent = v; }
+      else { sn.className = 'stone gap'; }
+      stream.appendChild(sn);
+    });
+
+    var walker = document.createElement('img');
+    walker.className = 'walker';
+    walker.src = 'cielaFull.png';
+    walker.alt = '';
+    walker.style.setProperty('--walk', (sz.stone * 1.15).toFixed(0) + 'px');
+    walker.addEventListener('error', function(){ walker.hidden = true; });
+    stream.appendChild(walker);
+
+    var row = document.createElement('div');
+    row.className = 'tiles-row';
+    pool.forEach(function(v){
+      var t = document.createElement('button');
+      t.className = 'ltile'; t.type = 'button';
+      t.textContent = v;
+      t.setAttribute('aria-label', 'stone ' + v);
+      t.style.setProperty('--tile', sz.tile.toFixed(0) + 'px');
+      t.addEventListener('click', function(){ placeStone(t, v, stream, row, walker); });
+      row.appendChild(t);
+    });
+
+    wrap.appendChild(stream);
+    wrap.appendChild(row);
+    field.appendChild(wrap);
+
+    st.stream = stream; st.row = row; st.walker = walker;
+    requestAnimationFrame(function(){ moveWalker(stream, walker, st.given); });
+    setTimeout(function(){ playClip('stones-go'); }, 320);
+  }
+
+  function moveWalker(stream, walker, slotIndex){
+    if(!walker || walker.hidden) return;
+    var stones = stream.querySelectorAll('.stone');
+    var target = stones[Math.min(slotIndex, stones.length - 1)];
+    if(!target) return;
+    var sBox = stream.getBoundingClientRect();
+    var tBox = target.getBoundingClientRect();
+    walker.style.left = (tBox.left - sBox.left + tBox.width / 2) + 'px';
+  }
+
+  function placeStone(tile, value, stream, row, walker){
+    var st = stoneState;
+    if(!st || st.done) return;
+
+    var slot = st.given + st.placed;
+    if(value !== st.seq[slot]){
+      st.clean = false;
+      thud();
+      tile.classList.remove('nope');
+      void tile.offsetWidth;
+      tile.classList.add('nope');
+      react('nudge');
+      return;
+    }
+
+    var sn = stream.children[slot];
+    sn.className = 'stone set';
+    sn.textContent = value;
+    tile.classList.add('used');
+    st.placed++;
+
+    moveWalker(stream, walker, st.given + st.placed);
+    if(walker && !walker.hidden){
+      walker.classList.remove('hop');
+      void walker.offsetWidth;
+      walker.classList.add('hop');
+    }
+
+    if(st.given + st.placed < st.seq.length){
+      chime();
+      return;
+    }
+
+    st.done = true;
+    row.classList.add('locked');
+    stream.classList.add('done');
+    chime();
+    react('cheer');
+    record('stones-' + st.lv.id, st.list[st.at].id, st.clean);
+    if(st.clean) st.earned = (st.earned || []).concat(addStars(1));
+    lightGems(gemRow, st.at + 1);
+    prompt.innerHTML = '<span>Across!</span>';
+
+    setTimeout(function(){
+      var key = randomCheerKey();
+      if(key) playClip(key);
+    }, 300);
+
+    setTimeout(function(){
+      st.done = false;
+      st.at++;
+      if(st.at >= st.list.length) finishStones();
+      else nextCrossing();
+    }, 1700);
+  }
+
+  function finishStones(){
+    var st = stoneState;
+    winTitle.textContent = mode.done;
+    buildGems(trophy, st.list.length);
+    lightGems(trophy, st.list.length);
+    showPrize((st.earned || []).concat(addStars(1)));
+    refreshChest();
+    winVeil.hidden = false;
+    setTimeout(function(){ playClip('win'); }, 420);
+    setTimeout(toMenuMusic, 1400);
+  }
+
+  /* ==========================================================
      Word Bridge
      ========================================================== */
 
@@ -1873,6 +2210,8 @@ body{
 
   function openLevelPicker(){
     levelList.innerHTML = '';
+    document.querySelector('#levelVeil h1').textContent = 'Build the Word Bridge';
+    document.querySelector('#levelVeil p').textContent = 'Pick how tricky it should be.';
     BRIDGE_LEVELS.forEach(function(lv){
       var b = document.createElement('button');
       b.className = 'level';
@@ -2266,6 +2605,7 @@ body{
 
     var sections = Object.keys(MODES);
     BRIDGE_LEVELS.forEach(function(lv){ sections.push('bridge-' + lv.id); });
+    STONE_LEVELS.forEach(function(lv){ sections.push('stones-' + lv.id); });
 
     sections.forEach(function(key){
       if(!itemsFor(key).length) return;   /* nothing trackable, e.g. the card game */
@@ -2275,7 +2615,9 @@ body{
       var h = document.createElement('h2');
       var met = metCount(key), total = itemsFor(key).length;
       var title = MODES[key] ? MODES[key].label
-                             : 'Word Bridge \u2014 ' + levelById(key.slice(7)).name;
+                : key.indexOf('stones-') === 0
+                  ? 'Stepping Stones \u2014 ' + stoneLevelById(key.slice(7)).name
+                  : 'Word Bridge \u2014 ' + levelById(key.slice(7)).name;
       h.textContent = title + ' \u2014 ' + met + ' of ' + total;
       section.appendChild(h);
 
@@ -2434,6 +2776,13 @@ body{
         BRIDGE_LEVELS.forEach(function(lv){
           total += lv.words.length;
           met += starsFor(lv.id);
+        });
+      }
+      if(key === 'stones'){
+        total = 0; met = 0;
+        STONE_LEVELS.forEach(function(lv){
+          total += lv.puzzles.length;
+          met += stoneStars(lv.id);
         });
       }
       if(met > 0){
