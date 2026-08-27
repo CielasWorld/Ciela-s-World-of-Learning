@@ -109,7 +109,7 @@ body{
 
 /* ---------- play field ---------- */
 
-.field{position:relative;z-index:2;flex:1;min-height:0}
+.field{position:relative;z-index:2;flex:1;min-height:0;overflow:hidden}
 
 .pick{
   position:absolute;transform:translate(-50%,-50%);
@@ -373,17 +373,21 @@ body{
 
 /* ---------- memory cards ---------- */
 
-.deck{
+.deck-wrap{
   position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:clamp(3px,1vw,10px);
+  overflow:hidden;
+}
+
+.deck{
+  width:100%;height:100%;
   display:grid;
   /* rows are explicit so the deck can never grow taller than the field
      and spill cards over each other */
   grid-template-columns:repeat(var(--cols),minmax(0,1fr));
   grid-template-rows:repeat(var(--rows),minmax(0,1fr));
   gap:clamp(4px,1.2vw,12px);
-  padding:clamp(3px,1vw,10px);
-  justify-items:stretch;
-  place-content:stretch center;
 }
 
 .card{
@@ -1350,18 +1354,11 @@ body{
   var deckState = null;
 
   function deckPool(){
-    /* a mixed deck keeps it interesting: objects, numerals and letters */
-    var pool = [];
-    PROPS.forEach(function(pr){
-      pool.push({ id:'obj-' + pr.key, kind:'img', src:pr.file, label:pr.one });
+    /* Ciela's own objects only - pictures are what makes a memory game
+       readable at a glance for a small child. */
+    return PROPS.map(function(pr){
+      return { id:'obj-' + pr.key, kind:'img', src:pr.file, label:pr.one };
     });
-    for(var n = 1; n <= 10; n++){
-      pool.push({ id:'num-' + n, kind:'glyph', text:String(n), label:WORDS[n] });
-    }
-    ALPHABET.forEach(function(L){
-      pool.push({ id:'ltr-' + L, kind:'glyph', text:L, label:'letter ' + L });
-    });
-    return pool;
   }
 
   function cardFace(item){
@@ -1420,26 +1417,47 @@ body{
     return best || { cols:4, rows:Math.ceil(count / 4) };
   }
 
+  var MAX_CELL = 200;   /* a card never needs to be bigger than this */
+
   function layoutDeck(){
     var st = deckState;
-    if(!st || !st.deck) return;
-    var box = field.getBoundingClientRect();
-    var w = Math.max(120, box.width), h = Math.max(120, box.height);
+    if(!st || !st.deck || !st.wrap) return;
+
+    var box = st.wrap.getBoundingClientRect();
+    var w = box.width, h = box.height;
+
+    /* If the browser hasn't laid the field out yet the box is zero. Measuring
+       then would pick a nonsense grid and blow the cards up, so wait a frame
+       and try again rather than guessing. */
+    if(w < 40 || h < 40){
+      requestAnimationFrame(layoutDeck);
+      return;
+    }
+
     var g = bestGrid(st.count, w, h);
     st.deck.style.setProperty('--cols', g.cols);
     st.deck.style.setProperty('--rows', g.rows);
 
-    /* size the numeral/letter faces from the cell, not the viewport */
-    var cellW = w / g.cols, cellH = h / g.rows;
-    var glyph = Math.max(14, Math.min(cellW, cellH) * 0.52);
-    st.deck.style.setProperty('--glyph', glyph.toFixed(0) + 'px');
+    var gap = Math.max(4, Math.min(12, w * 0.012));
+    var cellW = (w - gap * (g.cols - 1)) / g.cols;
+    var cellH = (h - gap * (g.rows - 1)) / g.rows;
+    var cell = Math.min(cellW, cellH, MAX_CELL);
+
+    /* cap the whole board so cards stay card-sized on a big screen */
+    st.deck.style.maxWidth  = Math.ceil(cell * g.cols + gap * (g.cols - 1)) + 'px';
+    st.deck.style.maxHeight = Math.ceil(cell * g.rows + gap * (g.rows - 1)) + 'px';
   }
 
   var relayoutTimer = null;
-  window.addEventListener('resize', function(){
+  function scheduleRelayout(){
     clearTimeout(relayoutTimer);
-    relayoutTimer = setTimeout(layoutDeck, 120);
-  });
+    relayoutTimer = setTimeout(layoutDeck, 100);
+  }
+  window.addEventListener('resize', scheduleRelayout);
+  window.addEventListener('orientationchange', scheduleRelayout);
+  if(window.ResizeObserver){
+    new ResizeObserver(scheduleRelayout).observe(field);
+  }
 
   function buildDeck(pairs){
     stopVoice();
@@ -1454,11 +1472,14 @@ body{
     });
     shuffle(cards);
 
+    var wrap = document.createElement('div');
+    wrap.className = 'deck-wrap';
     var deck = document.createElement('div');
     deck.className = 'deck';
+    wrap.appendChild(deck);
 
     deckState = { open:[], found:0, pairs:pairs, count:cards.length,
-                  busy:false, deck:deck };
+                  busy:false, deck:deck, wrap:wrap };
 
     cards.forEach(function(item){
       var btn = document.createElement('button');
@@ -1474,8 +1495,8 @@ body{
       deck.appendChild(btn);
     });
 
-    field.appendChild(deck);
-    layoutDeck();
+    field.appendChild(wrap);
+    requestAnimationFrame(layoutDeck);
   }
 
   function flipCard(btn, item){
