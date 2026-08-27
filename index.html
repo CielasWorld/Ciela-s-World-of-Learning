@@ -371,6 +371,77 @@ body{
 
 .go.danger{color:#8f3326}
 
+/* ---------- memory cards ---------- */
+
+.deck{
+  position:absolute;inset:0;
+  display:grid;
+  grid-template-columns:repeat(var(--cols),1fr);
+  gap:clamp(5px,1.6vw,14px);
+  padding:clamp(4px,1.4vw,12px);
+  align-content:center;
+}
+
+.card{
+  position:relative;
+  aspect-ratio:3/4;
+  border:0;background:none;padding:0;cursor:pointer;
+  perspective:800px;
+  min-height:0;
+}
+.card:focus-visible{outline:4px solid #fff;outline-offset:3px;border-radius:16px}
+
+.card-inner{
+  position:absolute;inset:0;
+  transform-style:preserve-3d;
+  transition:transform .42s cubic-bezier(.34,1.3,.64,1);
+}
+.card.flipped .card-inner{transform:rotateY(180deg)}
+
+.card-face{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:clamp(9px,2.2vw,16px);
+  overflow:hidden;
+}
+
+.card-back{
+  background:linear-gradient(160deg,#1298a5,var(--teal-deep));
+  box-shadow:inset 0 0 0 2.5px var(--gold),0 5px 12px rgba(9,60,70,.4);
+}
+.card-back img{width:62%;height:auto;opacity:.95}
+.card-back .paw{font-size:clamp(20px,6vw,40px)}
+
+.card-front{
+  transform:rotateY(180deg);
+  background:linear-gradient(170deg,#FFFFFF,#DFF3F6);
+  box-shadow:inset 0 0 0 2.5px var(--gold),0 5px 12px rgba(9,60,70,.4);
+  padding:8%;
+}
+.card-front img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.card-front .face-glyph{
+  font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:clamp(26px,9vw,64px);line-height:1;
+  color:transparent;
+  background-image:linear-gradient(165deg,#FFFFFF 0%,#BFF0F4 26%,var(--teal) 62%,var(--teal-deep) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-stroke:clamp(1.5px,.5vw,3px) var(--gold);
+  paint-order:stroke fill;
+}
+
+.card.matched{animation:matchPop .5s cubic-bezier(.34,1.56,.64,1)}
+.card.matched .card-front{
+  box-shadow:inset 0 0 0 3px var(--mint),0 0 18px rgba(79,197,140,.7);
+}
+.card.matched{pointer-events:none}
+@keyframes matchPop{
+  0%{transform:scale(1)}45%{transform:scale(1.12)}100%{transform:scale(1)}
+}
+.card.settled{opacity:.62}
+
+.deck.locked .card{pointer-events:none}
+
 .veil.report p.note{
   color:#fff;font-size:13px;font-weight:600;max-width:44ch;
   text-shadow:0 2px 8px rgba(8,50,60,.6);
@@ -1174,6 +1245,17 @@ body{
                 target.letter + ' is for ' + target.one + '. Find the small ' + target.letter + '.'];
       },
       render: function(value){ return glyphButton(value, 'small letter ' + value); }
+    },
+
+    /* Chispa's cards. This one runs its own board rather than the
+       round engine, so it is marked custom and starts itself. */
+    memory: {
+      label: "Chispa's Cards",
+      icon: 'Chispa-head-icon-250.png',
+      done: 'You found every pair!',
+      custom: true,
+      pairs: 6,
+      start: function(){ buildDeck(this.pairs); }
     }
 
   };
@@ -1256,6 +1338,152 @@ body{
     field.appendChild(wrap);
   }
 
+  /* ==========================================================
+     Chispa's memory cards
+     ========================================================== */
+
+  var deckState = null;
+
+  function deckPool(){
+    /* a mixed deck keeps it interesting: objects, numerals and letters */
+    var pool = [];
+    PROPS.forEach(function(pr){
+      pool.push({ id:'obj-' + pr.key, kind:'img', src:pr.file, label:pr.one });
+    });
+    for(var n = 1; n <= 10; n++){
+      pool.push({ id:'num-' + n, kind:'glyph', text:String(n), label:WORDS[n] });
+    }
+    ALPHABET.forEach(function(L){
+      pool.push({ id:'ltr-' + L, kind:'glyph', text:L, label:'letter ' + L });
+    });
+    return pool;
+  }
+
+  function cardFace(item){
+    var face = document.createElement('span');
+    face.className = 'card-face card-front';
+    if(item.kind === 'img'){
+      var img = document.createElement('img');
+      img.src = item.src;
+      img.alt = '';
+      img.addEventListener('error', function(){
+        var g = document.createElement('span');
+        g.className = 'face-glyph';
+        g.textContent = item.label.charAt(0).toUpperCase();
+        img.replaceWith(g);
+      });
+      face.appendChild(img);
+    }else{
+      var g2 = document.createElement('span');
+      g2.className = 'face-glyph';
+      g2.textContent = item.text;
+      face.appendChild(g2);
+    }
+    return face;
+  }
+
+  function cardBack(){
+    var back = document.createElement('span');
+    back.className = 'card-face card-back';
+    var img = document.createElement('img');
+    img.src = 'Chispa-head-icon-250.png';
+    img.alt = '';
+    img.addEventListener('error', function(){
+      var paw = document.createElement('span');
+      paw.className = 'paw';
+      paw.textContent = '\uD83D\uDC3E';
+      img.replaceWith(paw);
+    });
+    back.appendChild(img);
+    return back;
+  }
+
+  function buildDeck(pairs){
+    stopVoice();
+    field.innerHTML = '';
+    prompt.innerHTML = '<span>Find the matching pairs</span>';
+
+    var chosen = shuffle(deckPool()).slice(0, pairs);
+    var cards = [];
+    chosen.forEach(function(item){
+      cards.push(item);
+      cards.push(item);
+    });
+    shuffle(cards);
+
+    var deck = document.createElement('div');
+    deck.className = 'deck';
+    deck.style.setProperty('--cols', pairs >= 6 ? 4 : 3);
+
+    deckState = { open:[], found:0, pairs:pairs, busy:false, deck:deck };
+
+    cards.forEach(function(item){
+      var btn = document.createElement('button');
+      btn.className = 'card';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', 'face down card');
+      var inner = document.createElement('span');
+      inner.className = 'card-inner';
+      inner.appendChild(cardBack());
+      inner.appendChild(cardFace(item));
+      btn.appendChild(inner);
+      btn.addEventListener('click', function(){ flipCard(btn, item); });
+      deck.appendChild(btn);
+    });
+
+    field.appendChild(deck);
+  }
+
+  function flipCard(btn, item){
+    var st = deckState;
+    if(!st || st.busy) return;
+    if(btn.classList.contains('flipped') || btn.classList.contains('matched')) return;
+
+    btn.classList.add('flipped');
+    btn.setAttribute('aria-label', item.label);
+    st.open.push({ btn:btn, item:item });
+    if(st.open.length < 2) return;
+
+    var a = st.open[0], b = st.open[1];
+    st.open = [];
+
+    if(a.item.id === b.item.id){
+      chime();
+      a.btn.classList.add('matched');
+      b.btn.classList.add('matched');
+      st.found++;
+      lightGems(gemRow, st.found);
+      react('cheer');
+      setTimeout(function(){
+        a.btn.classList.add('settled');
+        b.btn.classList.add('settled');
+      }, 700);
+      if(st.found >= st.pairs){
+        st.busy = true;
+        setTimeout(function(){
+          var key = randomCheerKey();
+          if(key) playClip(key);
+        }, 260);
+        setTimeout(finish, 1400);
+      }
+      return;
+    }
+
+    /* no match - hold both face up long enough to be seen, then turn back */
+    st.busy = true;
+    st.deck.classList.add('locked');
+    thud();
+    react('nudge');
+    setTimeout(function(){
+      a.btn.classList.remove('flipped');
+      b.btn.classList.remove('flipped');
+      a.btn.setAttribute('aria-label', 'face down card');
+      b.btn.setAttribute('aria-label', 'face down card');
+      st.busy = false;
+      st.deck.classList.remove('locked');
+    }, 1100);
+  }
+
   function speakPrompt(){
     if(!mode || !rounds.length) return;
     var pair = mode.speak.call(mode, currentTarget());
@@ -1336,9 +1564,10 @@ body{
   }
 
   function finish(){
+    var total = mode.custom ? mode.pairs : rounds.length;
     winTitle.textContent = mode.done;
-    buildGems(trophy, rounds.length);
-    lightGems(trophy, rounds.length);
+    buildGems(trophy, total);
+    lightGems(trophy, total);
     winVeil.hidden = false;
     setTimeout(function(){ playClip('win'); }, 450);
     setTimeout(toMenuMusic, 1400);
@@ -1351,16 +1580,27 @@ body{
   function startMode(key){
     modeKey = key;
     mode = MODES[key];
-    rounds = mode.plan.call(mode);
-    index = 0;
-    buildGems(gemRow, rounds.length);
+    deckState = null;
     homeVeil.hidden = true;
     winVeil.hidden = true;
     toGameMusic();
+
+    if(mode.custom){
+      rounds = [];
+      index = 0;
+      buildGems(gemRow, mode.pairs);
+      mode.start.call(mode);
+      return;
+    }
+
+    rounds = mode.plan.call(mode);
+    index = 0;
+    buildGems(gemRow, rounds.length);
     newRound();
   }
 
   function goHome(){
+    deckState = null;
     field.innerHTML = '';
     prompt.innerHTML = '';
     mode = null;
@@ -1427,6 +1667,7 @@ body{
     var anyData = false;
 
     Object.keys(MODES).forEach(function(key){
+      if(!itemsFor(key).length) return;   /* nothing trackable, e.g. the card game */
       var section = document.createElement('div');
       section.className = 'report-mode';
 
