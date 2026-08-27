@@ -317,6 +317,76 @@ body{
   color:var(--teal);opacity:.75;letter-spacing:.02em;
 }
 
+.chest{
+  display:flex;align-items:center;gap:9px;
+  padding:clamp(9px,2.2vw,13px) clamp(16px,4vw,26px);
+  border:0;border-radius:999px;cursor:pointer;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 5px 0 rgba(11,90,98,.5),0 10px 20px rgba(8,50,60,.32),inset 0 0 0 2.5px var(--gold);
+  font-family:'Baloo 2',cursive;font-weight:700;
+  font-size:clamp(14px,3.6vw,19px);color:var(--navy);
+  transition:transform .16s ease,box-shadow .16s ease;
+}
+.chest:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(11,90,98,.5),0 4px 10px rgba(8,50,60,.32),inset 0 0 0 2.5px var(--gold)}
+.chest:focus-visible{outline:4px solid #fff;outline-offset:3px}
+.chest-icon{color:var(--gold);font-size:1.15em;line-height:1}
+.chest-text b{color:var(--teal)}
+
+.vault{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(66px,17vw,110px),1fr));
+  gap:clamp(6px,1.8vw,12px);
+  width:min(94vw,660px);
+  max-height:58vh;overflow-y:auto;
+  padding:clamp(8px,2vw,14px);
+  background:rgba(255,255,255,.18);
+  border-radius:22px;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);
+}
+
+.slot{
+  aspect-ratio:1;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:16px;
+  background:rgba(255,255,255,.9);
+  box-shadow:inset 0 0 0 2px var(--gold),0 3px 8px rgba(8,50,60,.28);
+  padding:8%;
+  position:relative;
+}
+.slot img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+
+.slot.locked{
+  background:rgba(255,255,255,.2);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.32);
+}
+.slot.locked img{filter:brightness(0) invert(1);opacity:.24}
+.slot.locked::after{
+  content:'\2605 ' attr(data-cost);
+  position:absolute;bottom:4px;left:0;right:0;
+  font-family:'Nunito',sans-serif;font-weight:800;
+  font-size:clamp(9px,2.2vw,12px);color:#fff;opacity:.85;
+  text-shadow:0 1px 4px rgba(8,50,60,.7);
+}
+.slot.fresh{animation:matchPop .6s cubic-bezier(.34,1.56,.64,1)}
+
+.prize{display:flex;flex-direction:column;align-items:center;gap:4px}
+.prize[hidden]{display:none}
+.prize-line{
+  font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:clamp(15px,4vw,21px);color:#fff;
+  text-shadow:0 2px 8px rgba(8,50,60,.6);
+}
+.prize img{
+  width:clamp(80px,24vw,150px);height:auto;
+  filter:drop-shadow(0 6px 14px rgba(8,50,60,.5));
+  animation:matchPop .7s cubic-bezier(.34,1.56,.64,1);
+}
+.prize-name{
+  font-family:'Nunito',sans-serif;font-weight:800;
+  font-size:clamp(12px,3.2vw,16px);color:#fff;
+  text-shadow:0 2px 8px rgba(8,50,60,.6);
+}
+
 .grownups{
   margin-top:4px;border:0;background:none;cursor:pointer;
   font-family:'Nunito',sans-serif;font-weight:700;
@@ -370,6 +440,122 @@ body{
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 
 .go.danger{color:#8f3326}
+
+.levels{display:flex;flex-direction:column;gap:clamp(8px,2vw,14px);width:min(92vw,420px)}
+
+.level{
+  display:flex;align-items:center;gap:12px;
+  padding:clamp(11px,2.6vw,16px) clamp(14px,3vw,20px);
+  border:0;border-radius:20px;cursor:pointer;text-align:left;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 5px 0 rgba(11,90,98,.55),0 10px 20px rgba(8,50,60,.3),inset 0 0 0 2.5px var(--gold);
+  transition:transform .16s ease,box-shadow .16s ease;
+}
+.level:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(11,90,98,.55),0 4px 10px rgba(8,50,60,.3),inset 0 0 0 2.5px var(--gold)}
+.level:focus-visible{outline:4px solid #fff;outline-offset:3px}
+.level .lv-badge{font-size:clamp(22px,6vw,32px);line-height:1;flex:0 0 auto}
+.level .lv-text{display:flex;flex-direction:column;gap:1px;min-width:0}
+.level .lv-name{font-family:'Baloo 2',cursive;font-weight:700;font-size:clamp(15px,3.8vw,20px);color:var(--navy)}
+.level .lv-sub{font-family:'Nunito',sans-serif;font-weight:700;font-size:clamp(11px,2.8vw,13px);color:#5b7f88}
+.level .lv-stars{margin-left:auto;font-size:clamp(11px,2.8vw,14px);color:var(--gold);font-weight:800;white-space:nowrap}
+
+/* ---------- word bridge ---------- */
+
+.bridge-wrap{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(6px,1.8vh,16px);
+  padding:clamp(4px,1.2vw,12px);
+  overflow:hidden;
+}
+
+.bridge-clue{
+  flex:0 1 auto;min-height:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.bridge-clue img{
+  max-height:clamp(60px,20vh,190px);max-width:44vw;
+  width:auto;height:auto;object-fit:contain;
+  filter:drop-shadow(0 6px 12px rgba(9,60,70,.4));
+  animation:bobble 3s ease-in-out infinite alternate;
+}
+
+.bridge{
+  flex:0 0 auto;
+  display:flex;gap:clamp(3px,1vw,9px);
+  align-items:flex-end;justify-content:center;
+  max-width:96%;
+}
+
+.plank{
+  position:relative;
+  width:var(--plank,58px);height:calc(var(--plank,58px) * 1.12);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:calc(var(--plank,58px) * .58);line-height:1;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* an unbuilt span of the bridge - a gap over the clouds */
+.plank.gap{
+  background:rgba(255,255,255,.16);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.5);
+  border-radius:10px;
+}
+.plank.gap::after{
+  content:'';position:absolute;left:12%;right:12%;bottom:-9px;height:4px;
+  border-radius:3px;background:rgba(255,255,255,.35);
+}
+
+/* a repaired plank */
+.plank.built{
+  background:linear-gradient(170deg,#F3D9A4,#C99A4E);
+  color:#5A3A12;
+  box-shadow:inset 0 0 0 3px var(--gold),0 5px 0 #A87C33,0 9px 14px rgba(9,60,70,.35);
+  animation:plankDrop .34s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes plankDrop{
+  0%{transform:translateY(-26px) rotate(-7deg);opacity:0}
+  100%{transform:translateY(0) rotate(0);opacity:1}
+}
+
+.plank.given{
+  background:linear-gradient(170deg,#E7E0CE,#BCAF92);
+  color:#5A3A12;
+  box-shadow:inset 0 0 0 3px rgba(232,183,90,.7),0 5px 0 #9c9075;
+}
+
+.bridge.done .plank{box-shadow:inset 0 0 0 3px var(--gold),0 5px 0 #A87C33,0 0 22px rgba(232,183,90,.85)}
+
+.tiles-row{
+  flex:0 0 auto;
+  display:flex;flex-wrap:wrap;gap:clamp(4px,1.4vw,12px);
+  align-items:center;justify-content:center;
+  max-width:96%;
+}
+
+.ltile{
+  width:var(--tile,54px);height:var(--tile,54px);
+  border:0;border-radius:14px;cursor:pointer;
+  font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:calc(var(--tile,54px) * .55);line-height:1;
+  color:var(--navy);
+  background:linear-gradient(165deg,#FFFFFF,#CFEDF1);
+  box-shadow:inset 0 0 0 2.5px var(--gold),0 4px 0 rgba(11,90,98,.5),0 8px 14px rgba(9,60,70,.3);
+  transition:transform .16s ease,opacity .2s ease;
+}
+.ltile:active{transform:translateY(3px)}
+.ltile:focus-visible{outline:4px solid #fff;outline-offset:3px}
+.ltile.used{opacity:0;pointer-events:none;transform:scale(.4)}
+.ltile.nope{animation:wobbleStatic .45s ease}
+
+.tiles-row.locked .ltile{pointer-events:none}
+
+.stars-line{
+  font-size:clamp(16px,4.5vw,26px);letter-spacing:.12em;
+  filter:drop-shadow(0 2px 6px rgba(8,50,60,.5));
+}
 
 /* ---------- memory cards ---------- */
 
@@ -521,7 +707,18 @@ body{
   <img class="veil-mark" id="homeMark" src="cielaWorldLogo.png" alt="Ciela's World of Learning">
   <p>Pick a game to play with Ciela.</p>
   <div class="tiles" id="tiles"></div>
+  <button class="chest" id="chestBtn">
+    <span class="chest-icon">\u2605</span>
+    <span class="chest-text">Treasures <b id="chestCount">0 / 20</b></span>
+  </button>
   <button class="grownups" id="grownupsBtn">For grown-ups</button>
+</div>
+
+<div class="veil" id="vaultVeil" hidden>
+  <h1>Your Treasures</h1>
+  <p id="vaultLine">Earn stars to find more.</p>
+  <div class="vault" id="vaultGrid"></div>
+  <button class="go ghost" id="vaultClose">Done</button>
 </div>
 
 <div class="veil" id="gateVeil" hidden>
@@ -540,9 +737,21 @@ body{
   </div>
 </div>
 
+<div class="veil" id="levelVeil" hidden>
+  <h1>Build the Word Bridge</h1>
+  <p>Pick how tricky it should be.</p>
+  <div class="levels" id="levelList"></div>
+  <button class="go ghost" id="levelBack">Other games</button>
+</div>
+
 <div class="veil" id="winVeil" hidden>
   <h1 id="winTitle">You did it!</h1>
   <div class="trophy" id="trophy"></div>
+  <div class="prize" id="prize" hidden>
+    <p class="prize-line">New treasure!</p>
+    <img id="prizeImg" src="" alt="">
+    <p class="prize-name" id="prizeName"></p>
+  </div>
   <div class="row">
     <button class="go" id="againBtn">Play again</button>
     <button class="go ghost" id="backBtn">Other games</button>
@@ -560,6 +769,34 @@ body{
   var WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten'];
   var CHEERS = ['Great job!','You got it!','Nice tapping!','Well done!','That is the one!'];
   var ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+  /* Word Bridge. Every word is one of Ciela's props, so the picture above
+     the bridge always tells a non-reader what they are spelling. */
+  var BRIDGE_LEVELS = [
+    { id:'cloud',   name:'Cloud Beginner',   badge:'\u2601\uFE0F',
+      note:'Short words, one plank missing',
+      words:['cat','egg','hat','jar','key','sun'], blanks:1, decoys:1 },
+    { id:'golden',  name:'Golden Explorer',  badge:'\u2728',
+      note:'Whole word, a few spare letters',
+      words:['ball','drum','goat','moon','nest','rope'], blanks:0, decoys:2 },
+    { id:'crystal', name:'Crystal Champion', badge:'\uD83D\uDC8E',
+      note:'Longer words, more spare letters',
+      words:['apple','queen','wagon','zebra','flower','orange','violin'], blanks:0, decoys:3 }
+  ];
+
+  function levelById(id){
+    for(var i = 0; i < BRIDGE_LEVELS.length; i++){
+      if(BRIDGE_LEVELS[i].id === id) return BRIDGE_LEVELS[i];
+    }
+    return BRIDGE_LEVELS[0];
+  }
+
+  function propForWord(word){
+    for(var i = 0; i < PROPS.length; i++){
+      if(PROPS[i].one.toLowerCase() === word) return PROPS[i];
+    }
+    return null;
+  }
 
 
 
@@ -735,6 +972,9 @@ body{
     for(i = 0; i < SHAPES.length; i++) loadClip('shape-' + SHAPES[i].key, 'shape-' + SHAPES[i].key);
     for(i = 0; i < COLORS.length; i++) loadClip('color-' + COLORS[i].key, 'color-' + COLORS[i].key);
     ALPHABET.forEach(function(L){ loadClip('letter-' + L, 'letter-' + L.toLowerCase()); });
+    BRIDGE_LEVELS.forEach(function(lv){
+      lv.words.forEach(function(wd){ loadClip('word-' + wd, 'word-' + wd); });
+    });
     PROPS.forEach(function(p){ loadClip('count-' + p.key, 'count-' + p.key); });
   })();
 
@@ -766,6 +1006,8 @@ body{
 
   function onMenu(){
     return !wakeVeil.hidden || !homeVeil.hidden || !winVeil.hidden ||
+           !document.getElementById('levelVeil').hidden ||
+           !document.getElementById('vaultVeil').hidden ||
            !document.getElementById('gateVeil').hidden ||
            !document.getElementById('reportVeil').hidden;
   }
@@ -922,11 +1164,13 @@ body{
     if(key === 'colors')    return COLORS.map(function(c){ return c.key; });
     if(key === 'letters')   return PROPS.map(function(p){ return p.letter; }).sort();
     if(key === 'lowercase') return PROPS.map(function(p){ return p.letter.toLowerCase(); }).sort();
+    if(key.indexOf('bridge-') === 0) return levelById(key.slice(7)).words.slice().sort();
     return [];
   }
 
   function itemLabel(key, id){
     if(key === 'letters' || key === 'lowercase') return id;
+    if(key.indexOf('bridge-') === 0) return id;
     if(key === 'counting') return id;
     return id.charAt(0).toUpperCase() + id.slice(1);
   }
@@ -936,6 +1180,60 @@ body{
     var seen = progress[key] || {}, n = 0;
     itemsFor(key).forEach(function(id){ if(seen[id] && seen[id].right > 0) n++; });
     return n;
+  }
+
+  /* ==========================================================
+     Treasures
+     Stars come from finishing a game and from spelling a bridge
+     word with no mistakes. Each treasure costs one more star than
+     the last, so there is always a next one just in reach.
+     ========================================================== */
+
+  var TREASURES = [
+    { file:'rain-jar-treasure.png',      name:'Rain Jar' },
+    { file:'rainbow-wand-treasure.png',  name:'Rainbow Wand' },
+    { file:'star-dial-treasure.png',     name:'Star Dial' },
+    { file:'sea-shell-treasure.png',     name:'Singing Shell' },
+    { file:'weather-orb-treasure.png',   name:'Weather Orb' },
+    { file:'hourglass-treasure.png',     name:'Crystal Hourglass' },
+    { file:'gem-pouch-treasure.png',     name:'Gem Pouch' },
+    { file:'paw-stamps-treasure.png',    name:'Paw Stamps' },
+    { file:'island-mirror-treasure.png', name:'Island Mirror' },
+    { file:'firefly-jar-treasure.png',   name:'Firefly Jar' },
+    { file:'cloud-wand-treasure.png',    name:'Cloud Wand' },
+    { file:'wing-horn-treasure.png',     name:'Winged Whistle' },
+    { file:'moon-dial-treasure.png',     name:'Moon Dial' },
+    { file:'crystal-can-treasure.png',   name:'Crystal Watering Can' },
+    { file:'tool-case-treasure.png',     name:'Explorer Kit' },
+    { file:'terrarium-treasure.png',     name:'Little Terrarium' },
+    { file:'brass-horn-treasure.png',    name:'Brass Horn' },
+    { file:'float-magnet-treasure.png',  name:'Floating Magnet' },
+    { file:'memory-box-treasure.png',    name:'Memory Box' },
+    { file:'paw-compass-treasure.png',   name:"Chispa's Compass" }
+  ];
+
+  function treasureCost(i){ return i + 1; }
+
+  function totalStars(){
+    var n = progress.stars;
+    return typeof n === 'number' ? n : 0;
+  }
+
+  function unlockedCount(){
+    var stars = totalStars(), n = 0;
+    for(var i = 0; i < TREASURES.length; i++){
+      if(stars >= treasureCost(i)) n++;
+    }
+    return n;
+  }
+
+  /* returns any treasures that this award newly revealed */
+  function addStars(n){
+    var before = unlockedCount();
+    progress.stars = totalStars() + n;
+    saveProgress();
+    var after = unlockedCount();
+    return TREASURES.slice(before, after);
   }
 
   loadProgress();
@@ -1265,6 +1563,15 @@ body{
       custom: true,
       pairs: 10,
       start: function(){ buildDeck(this.pairs); }
+    },
+
+    bridge: {
+      label: 'Word Bridge',
+      icon: 'climbing-rope-transparent.png',
+      done: 'The bridge is finished!',
+      custom: true,
+      wordsPerGame: 5,
+      start: function(){ openLevelPicker(); }
     }
 
   };
@@ -1549,6 +1856,213 @@ body{
     }, 1100);
   }
 
+  /* ==========================================================
+     Word Bridge
+     ========================================================== */
+
+  var levelVeil = document.getElementById('levelVeil');
+  var levelList = document.getElementById('levelList');
+  var bridgeState = null;
+
+  function starsFor(levelId){
+    var seen = progress['bridge-' + levelId] || {};
+    var n = 0;
+    Object.keys(seen).forEach(function(k){ if(seen[k].right > 0) n++; });
+    return n;
+  }
+
+  function openLevelPicker(){
+    levelList.innerHTML = '';
+    BRIDGE_LEVELS.forEach(function(lv){
+      var b = document.createElement('button');
+      b.className = 'level';
+      b.type = 'button';
+
+      var badge = document.createElement('span');
+      badge.className = 'lv-badge';
+      badge.textContent = lv.badge;
+
+      var txt = document.createElement('span');
+      txt.className = 'lv-text';
+      var nm = document.createElement('span');
+      nm.className = 'lv-name'; nm.textContent = lv.name;
+      var sub = document.createElement('span');
+      sub.className = 'lv-sub'; sub.textContent = lv.note;
+      txt.appendChild(nm); txt.appendChild(sub);
+
+      var st = document.createElement('span');
+      st.className = 'lv-stars';
+      st.textContent = '\u2605 ' + starsFor(lv.id) + '/' + lv.words.length;
+
+      b.appendChild(badge); b.appendChild(txt); b.appendChild(st);
+      b.addEventListener('click', function(){
+        levelVeil.hidden = true;
+        startBridge(lv);
+      });
+      levelList.appendChild(b);
+    });
+    levelVeil.hidden = false;
+  }
+
+  function startBridge(lv){
+    var picked = shuffle(lv.words.slice()).slice(0, Math.min(mode.wordsPerGame, lv.words.length));
+    bridgeState = { lv:lv, words:picked, at:0, clean:true };
+    buildGems(gemRow, picked.length);
+    nextWord();
+  }
+
+  function sizeBridge(word, tileCount){
+    /* keep planks and tiles inside the field on any screen */
+    var box = field.getBoundingClientRect();
+    var w = Math.max(160, box.width), h = Math.max(160, box.height);
+    var plank = Math.min((w * 0.92) / word.length - 8, h * 0.20, 82);
+    var perRow = Math.min(tileCount, Math.max(4, Math.floor(w / 74)));
+    var tile = Math.min((w * 0.92) / perRow - 10, h * 0.17, 70);
+    return { plank:Math.max(26, plank), tile:Math.max(30, tile) };
+  }
+
+  function nextWord(){
+    stopVoice();
+    var st = bridgeState;
+    if(!st) return;
+    var word = st.words[st.at];
+    var prop = propForWord(word);
+    var letters = word.toUpperCase().split('');
+
+    st.word = word;
+    st.letters = letters;
+    st.filled = 0;
+    st.clean = true;
+
+    /* Cloud Beginner leaves most planks already in place */
+    var given = st.lv.blanks ? Math.max(0, letters.length - st.lv.blanks) : 0;
+    st.given = given;
+
+    field.innerHTML = '';
+    prompt.innerHTML = '<span>Build the bridge</span>';
+
+    var wrap = document.createElement('div');
+    wrap.className = 'bridge-wrap';
+
+    var clue = document.createElement('div');
+    clue.className = 'bridge-clue';
+    if(prop){
+      var img = document.createElement('img');
+      img.src = prop.file; img.alt = '';
+      img.addEventListener('error', function(){ img.remove(); });
+      clue.appendChild(img);
+    }
+
+    var bridge = document.createElement('div');
+    bridge.className = 'bridge';
+
+    var need = letters.slice(given);            /* letters still to place */
+    var pool = need.slice();
+    var extras = shuffle(ALPHABET.filter(function(L){
+      return letters.indexOf(L) === -1;
+    })).slice(0, st.lv.decoys);
+    pool = shuffle(pool.concat(extras));
+
+    var sz = sizeBridge(word, pool.length);
+
+    letters.forEach(function(L, i){
+      var pl = document.createElement('span');
+      pl.style.setProperty('--plank', sz.plank.toFixed(0) + 'px');
+      if(i < given){
+        pl.className = 'plank given';
+        pl.textContent = L;
+      }else{
+        pl.className = 'plank gap';
+      }
+      bridge.appendChild(pl);
+    });
+
+    var row = document.createElement('div');
+    row.className = 'tiles-row';
+    pool.forEach(function(L){
+      var t = document.createElement('button');
+      t.className = 'ltile';
+      t.type = 'button';
+      t.textContent = L;
+      t.setAttribute('aria-label', 'letter ' + L);
+      t.style.setProperty('--tile', sz.tile.toFixed(0) + 'px');
+      t.addEventListener('click', function(){ placeLetter(t, L, bridge, row); });
+      row.appendChild(t);
+    });
+
+    wrap.appendChild(clue);
+    wrap.appendChild(bridge);
+    wrap.appendChild(row);
+    field.appendChild(wrap);
+
+    st.bridge = bridge; st.row = row;
+    setTimeout(function(){ playClip('word-' + word); }, 320);
+  }
+
+  function placeLetter(tile, L, bridge, row){
+    var st = bridgeState;
+    if(!st || st.done) return;
+
+    var slot = st.given + st.filled;
+    if(L !== st.letters[slot]){
+      st.clean = false;
+      thud();
+      tile.classList.remove('nope');
+      void tile.offsetWidth;
+      tile.classList.add('nope');
+      react('nudge');
+      return;
+    }
+
+    var pl = bridge.children[slot];
+    pl.className = 'plank built';
+    pl.textContent = L;
+    pl.style.setProperty('--plank', tile.style.getPropertyValue('--tile') || '58px');
+    pl.style.removeProperty('--plank');
+    tile.classList.add('used');
+    st.filled++;
+
+    if(st.given + st.filled < st.letters.length){
+      chime();
+      return;
+    }
+
+    /* word complete */
+    st.done = true;
+    row.classList.add('locked');
+    bridge.classList.add('done');
+    chime();
+    react('cheer');
+    record('bridge-' + st.lv.id, st.word, st.clean);
+    if(st.clean) st.earned = (st.earned || []).concat(addStars(1));
+    lightGems(gemRow, st.at + 1);
+    prompt.innerHTML = '<span>' + st.word.toUpperCase() + '!</span>';
+
+    setTimeout(function(){
+      var key = randomCheerKey();
+      if(key) playClip(key);
+    }, 300);
+
+    setTimeout(function(){
+      st.done = false;
+      st.at++;
+      if(st.at >= st.words.length) finishBridge();
+      else nextWord();
+    }, 1800);
+  }
+
+  function finishBridge(){
+    var st = bridgeState;
+    winTitle.textContent = mode.done;
+    buildGems(trophy, st.words.length);
+    lightGems(trophy, st.words.length);
+    showPrize((st.earned || []).concat(addStars(1)));
+    refreshChest();
+    winVeil.hidden = false;
+    setTimeout(function(){ playClip('win'); }, 420);
+    setTimeout(toMenuMusic, 1400);
+  }
+
   function speakPrompt(){
     if(!mode || !rounds.length) return;
     var pair = mode.speak.call(mode, currentTarget());
@@ -1628,11 +2142,23 @@ body{
     }, 1750);
   }
 
+  function showPrize(list){
+    var box = document.getElementById('prize');
+    if(!list || !list.length){ box.hidden = true; return; }
+    var t = list[list.length - 1];
+    document.getElementById('prizeImg').src = t.file;
+    document.getElementById('prizeName').textContent =
+      t.name + (list.length > 1 ? ' and ' + (list.length - 1) + ' more' : '');
+    box.hidden = false;
+  }
+
   function finish(){
     var total = mode.custom ? mode.pairs : rounds.length;
     winTitle.textContent = mode.done;
     buildGems(trophy, total);
     lightGems(trophy, total);
+    showPrize(addStars(1));
+    refreshChest();
     winVeil.hidden = false;
     setTimeout(function(){ playClip('win'); }, 450);
     setTimeout(toMenuMusic, 1400);
@@ -1646,6 +2172,8 @@ body{
     modeKey = key;
     mode = MODES[key];
     deckState = null;
+    bridgeState = null;
+    levelVeil.hidden = true;
     homeVeil.hidden = true;
     winVeil.hidden = true;
     toGameMusic();
@@ -1666,6 +2194,11 @@ body{
 
   function goHome(){
     deckState = null;
+    bridgeState = null;
+    levelVeil.hidden = true;
+    vaultVeil.hidden = true;
+    document.getElementById('prize').hidden = true;
+    refreshChest();
     field.innerHTML = '';
     prompt.innerHTML = '';
     mode = null;
@@ -1731,14 +2264,19 @@ body{
     reportBody.innerHTML = '';
     var anyData = false;
 
-    Object.keys(MODES).forEach(function(key){
+    var sections = Object.keys(MODES);
+    BRIDGE_LEVELS.forEach(function(lv){ sections.push('bridge-' + lv.id); });
+
+    sections.forEach(function(key){
       if(!itemsFor(key).length) return;   /* nothing trackable, e.g. the card game */
       var section = document.createElement('div');
       section.className = 'report-mode';
 
       var h = document.createElement('h2');
       var met = metCount(key), total = itemsFor(key).length;
-      h.textContent = MODES[key].label + ' \u2014 ' + met + ' of ' + total;
+      var title = MODES[key] ? MODES[key].label
+                             : 'Word Bridge \u2014 ' + levelById(key.slice(7)).name;
+      h.textContent = title + ' \u2014 ' + met + ' of ' + total;
       section.appendChild(h);
 
       var seen = progress[key] || {};
@@ -1789,6 +2327,50 @@ body{
 
     reportVeil.hidden = false;
   }
+
+  /* ---------- treasure vault ---------- */
+
+  var vaultVeil = document.getElementById('vaultVeil');
+  var vaultGrid = document.getElementById('vaultGrid');
+
+  function refreshChest(){
+    var el = document.getElementById('chestCount');
+    if(el) el.textContent = unlockedCount() + ' / ' + TREASURES.length;
+  }
+
+  function openVault(fresh){
+    var stars = totalStars();
+    vaultGrid.innerHTML = '';
+    TREASURES.forEach(function(t, i){
+      var cost = treasureCost(i);
+      var slot = document.createElement('div');
+      slot.className = 'slot' + (stars >= cost ? '' : ' locked');
+      if(stars < cost) slot.setAttribute('data-cost', cost);
+      if(fresh && fresh.indexOf(t) > -1) slot.classList.add('fresh');
+      var img = document.createElement('img');
+      img.src = t.file;
+      img.alt = stars >= cost ? t.name : '';
+      img.addEventListener('error', function(){ img.remove(); });
+      slot.appendChild(img);
+      slot.title = stars >= cost ? t.name : ('Needs ' + cost + ' stars');
+      vaultGrid.appendChild(slot);
+    });
+    var line = document.getElementById('vaultLine');
+    var left = TREASURES.length - unlockedCount();
+    line.textContent = left
+      ? 'You have ' + stars + ' star' + (stars === 1 ? '' : 's') + '. ' + left + ' still hidden.'
+      : 'You found every treasure!';
+    homeVeil.hidden = true;
+    vaultVeil.hidden = false;
+  }
+
+  document.getElementById('chestBtn').addEventListener('click', function(){ openVault(null); });
+
+  document.getElementById('vaultClose').addEventListener('click', function(){
+    vaultVeil.hidden = true;
+    homeVeil.hidden = false;
+    refreshChest();
+  });
 
   document.getElementById('grownupsBtn').addEventListener('click', openGate);
 
@@ -1847,6 +2429,13 @@ body{
 
       var total = itemsFor(key).length;
       var met = metCount(key);
+      if(key === 'bridge'){
+        total = 0; met = 0;
+        BRIDGE_LEVELS.forEach(function(lv){
+          total += lv.words.length;
+          met += starsFor(lv.id);
+        });
+      }
       if(met > 0){
         var tally = document.createElement('span');
         tally.className = 'tally';
@@ -1886,10 +2475,16 @@ body{
     if(modeKey) startMode(modeKey);
   });
 
+  document.getElementById('levelBack').addEventListener('click', function(){
+    levelVeil.hidden = true;
+    goHome();
+  });
+
   document.getElementById('backBtn').addEventListener('click', goHome);
 
   buildTiles();
   buildGems(gemRow, 0);
+  refreshChest();
 
   /* ?debug on the URL lists which audio files were found */
   if(location.search.indexOf('debug') > -1){
