@@ -928,6 +928,86 @@ body{
   }
 
   /* ==========================================================
+     Adaptive round planning
+
+     A child who already knows 1-10 shouldn't sit through all ten
+     every time. Once there is history for a mode, rounds are drawn
+     toward the items they miss, with mastered items still appearing
+     often enough to keep it winnable. With no history yet, the mode's
+     natural teaching order is used instead.
+     ========================================================== */
+
+  function keyOfItem(mKey, item){
+    if(mKey === 'letters') return item.letter;
+    if(item && typeof item === 'object') return item.key;
+    return String(item);
+  }
+
+  function weightOf(mKey, item){
+    var slot = (progress[mKey] || {})[keyOfItem(mKey, item)];
+    if(!slot) return 4;                       /* never seen - introduce it */
+    if(slot.wrong > slot.right) return 6;     /* getting it wrong a lot    */
+    if(slot.wrong > 0) return 3;              /* shaky                     */
+    if(slot.right >= 3) return 1;             /* solid - keep it rare      */
+    return 2;                                 /* right, but not yet proven */
+  }
+
+  function weightedPick(mKey, pool, avoid){
+    var weights = [], total = 0;
+    pool.forEach(function(item){
+      var w = (item === avoid) ? 0 : weightOf(mKey, item);
+      weights.push(w);
+      total += w;
+    });
+    if(total <= 0) return pool[Math.floor(Math.random() * pool.length)];
+    var roll = Math.random() * total, acc = 0;
+    for(var i = 0; i < pool.length; i++){
+      acc += weights[i];
+      if(roll <= acc) return pool[i];
+    }
+    return pool[pool.length - 1];
+  }
+
+  function adaptivePlan(mKey, pool, count, keepOrder){
+    var seen = progress[mKey] || {};
+    var hasHistory = Object.keys(seen).length > 0;
+
+    if(!hasHistory){
+      var fresh = pool.slice();
+      if(!keepOrder) shuffle(fresh);
+      return fresh.slice(0, count);
+    }
+
+    /* anything never seen goes in first, so new material still arrives */
+    var unseen = pool.filter(function(it){ return !seen[keyOfItem(mKey, it)]; });
+    shuffle(unseen);
+    var picks = unseen.slice(0, Math.ceil(count / 2));
+
+    var last = picks.length ? picks[picks.length - 1] : null;
+    var guard = 0;
+    while(picks.length < count && guard++ < 300){
+      var choice = weightedPick(mKey, pool, last);
+      picks.push(choice);
+      last = choice;
+    }
+
+    shuffle(picks);
+
+    /* no item twice in a row - a repeat reads as a glitch to a small child */
+    for(var i = 1; i < picks.length; i++){
+      if(picks[i] === picks[i - 1]){
+        for(var j = i + 1; j < picks.length; j++){
+          if(picks[j] !== picks[i - 1]){
+            var t = picks[i]; picks[i] = picks[j]; picks[j] = t;
+            break;
+          }
+        }
+      }
+    }
+    return picks;
+  }
+
+  /* ==========================================================
      Modes
      ========================================================== */
 
@@ -937,7 +1017,7 @@ body{
       label: 'Numbers',
       icon: 'brass-sundial-transparent.png',
       done: 'You found all ten numbers!',
-      plan: function(){ return numberPool(); },
+      plan: function(){ return adaptivePlan('numbers', numberPool(), 10, true); },
       choices: function(target, round){
         var count = round <= 3 ? 2 : round <= 6 ? 3 : 4;
         return shuffle([target].concat(sample(numberPool(), count - 1, target)));
@@ -955,7 +1035,7 @@ body{
       plan: function(){
         var list = [];
         for(var n = 1; n <= 8; n++) list.push(n);
-        return shuffle(list);
+        return adaptivePlan('counting', list, 8, false);
       },
       before: function(){
         this.prop = PROPS[Math.floor(Math.random() * PROPS.length)];
@@ -977,7 +1057,7 @@ body{
       label: 'Shapes',
       icon: 'compass-key-transparent.png',
       done: 'You know your shapes!',
-      plan: function(){ return shuffle(SHAPES.slice()); },
+      plan: function(){ return adaptivePlan('shapes', SHAPES.slice(), 6, false); },
       choices: function(target, round){
         var count = round <= 2 ? 2 : round <= 4 ? 3 : 4;
         return shuffle([target].concat(sample(SHAPES, count - 1, target)));
@@ -999,7 +1079,7 @@ body{
       label: 'Colors',
       icon: 'crystal-sky-lantern-transparent.png',
       done: 'You know your colors!',
-      plan: function(){ return shuffle(COLORS.slice()); },
+      plan: function(){ return adaptivePlan('colors', COLORS.slice(), 8, false); },
       choices: function(target, round){
         var count = round <= 2 ? 2 : round <= 4 ? 3 : 4;
         return shuffle([target].concat(sample(COLORS, count - 1, target)));
@@ -1021,7 +1101,7 @@ body{
       label: 'Letters',
       icon: 'magical-quill-and-inkwell-transparent.png',
       done: 'You found all the letters!',
-      plan: function(){ return shuffle(PROPS.slice()).slice(0, 10); },
+      plan: function(){ return adaptivePlan('letters', PROPS.slice(), 10, false); },
       answer: function(target){ return target.letter; },
       itemKey: function(target){ return target.letter; },
       choices: function(target, round){
