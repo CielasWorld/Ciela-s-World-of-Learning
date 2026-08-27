@@ -579,7 +579,7 @@ body{
   filter:drop-shadow(0 8px 16px rgba(9,60,70,.4));
   transition:opacity .45s ease,transform .45s ease;
 }
-.stretch-stage img.swap{opacity:0;transform:scale(.94)}
+.stretch-stage img.swap{opacity:0}
 
 .hold-ring{
   width:clamp(48px,13vw,84px);height:clamp(48px,13vw,84px);
@@ -861,9 +861,12 @@ body{
   position:relative;
   flex:0 0 auto;
   display:flex;gap:clamp(4px,1.4vw,12px);
-  align-items:center;justify-content:center;
+  align-items:flex-end;justify-content:center;
   max-width:96%;
-  padding:clamp(10px,3vh,26px) clamp(6px,2vw,16px);
+  /* the top band is reserved for Ciela so she is never clipped */
+  padding:calc(var(--walkspace,90px) + clamp(6px,1.6vh,14px))
+          clamp(6px,2vw,16px)
+          clamp(10px,3vh,26px);
   border-radius:22px;
   background:linear-gradient(180deg,rgba(126,214,232,.55),rgba(58,164,192,.75));
   box-shadow:inset 0 2px 10px rgba(9,60,70,.3),inset 0 0 0 2px rgba(255,255,255,.35);
@@ -911,7 +914,7 @@ body{
 
 .walker{
   position:absolute;z-index:2;
-  bottom:calc(100% - clamp(8px,2.4vh,20px));
+  bottom:calc(100% - var(--walkspace,90px) - clamp(6px,1.6vh,14px));
   left:0;
   width:var(--walk,54px);height:auto;
   transform:translateX(-50%);
@@ -1284,7 +1287,7 @@ body{
   var STRETCHES = [
     { file:'ciela-reach.png',      say:'Reach up as tall as you can.' },
     { file:'ciela-side-left.png',  say:'Lean gently to one side.',      side:1 },
-    { file:'ciela-side-right.png', say:'Now lean to the other side.',   side:2 },
+    { file:'ciela-side-left.png',  say:'Now lean to the other side.',   side:2, flip:true },
     { file:'ciela-bend.png',       say:'Bend forward and let your arms hang.' },
     { file:'ciela-open.png',       say:'Open your arms out wide.' }
   ];
@@ -1480,7 +1483,7 @@ body{
   var audioReport = [];
 
   function tone(freqs, type, peak){
-    if(muted) return;
+    if(muted || audioParked) return;
     try{
       if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -1503,12 +1506,9 @@ body{
      refuse to preload audio, so canplaythrough may never fire. */
   function candidates(stem){
     return [
-      stem + '.mp3',
       stem + '.wav',
-      'audio' + stem + '.mp3',
-      'audio' + stem + '.wav',
-      'audio/' + stem + '.mp3',
-      'audio/' + stem + '.wav'
+      stem + '.mp3',
+      'audio' + stem + '.mp3'
     ];
   }
 
@@ -1525,14 +1525,48 @@ body{
     })();
   }
 
+  /* Clips are found now but not downloaded. Fetching every one at startup
+     meant tens of megabytes before the first tap, which made everything
+     feel sluggish. Each game warms only the clips it needs. */
   function loadClip(key, stem){
     findFile(stem, function(url){
       if(!url) return;
-      var a = new Audio(url);
-      a.preload = 'auto';
+      var a = new Audio();
+      a.preload = 'none';
+      a.src = url;
       clips[key] = a;
     });
   }
+
+  function warmClips(prefixes){
+    Object.keys(clips).forEach(function(k){
+      for(var i = 0; i < prefixes.length; i++){
+        if(k.indexOf(prefixes[i]) === 0){
+          var a = clips[k];
+          if(a.preload !== 'auto'){
+            a.preload = 'auto';
+            try{ a.load(); }catch(e){}
+          }
+          return;
+        }
+      }
+    });
+  }
+
+  /* which clips each game actually uses */
+  var CLIP_NEEDS = {
+    numbers:   ['find-'],
+    counting:  ['count-'],
+    shapes:    ['shape-'],
+    colors:    ['color-'],
+    letters:   ['letter-'],
+    lowercase: ['letter-'],
+    crystals:  ['num-','crystal-','yay-','retry-'],
+    stones:    ['stones-go','num-'],
+    bridge:    ['word-'],
+    calm:      ['calm-','num-'],
+    memory:    []
+  };
 
   (function loadAll(){
     var i;
@@ -1560,14 +1594,42 @@ body{
   /* Effects play on their own channel - they must not interrupt, or be
      interrupted by, Ciela's voice. */
   function playEffect(key){
-    if(muted) return false;
+    if(muted || audioParked) return false;
     var a = clips[key];
     if(!a) return false;
     try{ a.currentTime = 0; a.play(); return true; }catch(e){ return false; }
   }
 
+  /* A soft two-note bell rather than the old arpeggio - it has to be
+     pleasant on the two hundredth hearing, not just the first. */
   function chime(){
-    if(!playEffect('correct')) tone([523.25, 659.25, 783.99, 1046.5], 'triangle', 0.16);
+    if(muted || audioParked) return;
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      var notes = [[1046.50, 0.085, 0.00], [1567.98, 0.045, 0.055]];
+      notes.forEach(function(n){
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = n[0];
+        var t0 = audioCtx.currentTime + n[2];
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.exponentialRampToValueAtTime(n[1], t0 + 0.014);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.95);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(t0); osc.stop(t0 + 1.0);
+      });
+      /* a touch of body under the bell */
+      var low = audioCtx.createOscillator(), lg = audioCtx.createGain();
+      low.type = 'sine'; low.frequency.value = 523.25;
+      var lt = audioCtx.currentTime;
+      lg.gain.setValueAtTime(0.0001, lt);
+      lg.gain.exponentialRampToValueAtTime(0.035, lt + 0.02);
+      lg.gain.exponentialRampToValueAtTime(0.0001, lt + 0.55);
+      low.connect(lg).connect(audioCtx.destination);
+      low.start(lt); low.stop(lt + 0.6);
+    }catch(e){}
   }
   function thud(){
     if(!playEffect('wrong')) tone([196, 174.6], 'sine', 0.11);
@@ -1638,7 +1700,7 @@ body{
 
   function playClip(key){
     stopVoice();
-    if(muted) return;
+    if(muted || audioParked) return;
     var a = clips[key];
     if(!a) return;
     try{
@@ -1679,7 +1741,7 @@ body{
   }
 
   function toGameMusic(){
-    if(muted) return;
+    if(muted || audioParked) return;
     if(titleOk && !titleMusic.paused) fade(titleMusic, 0, 700, true);
     if(musicOk){
       music.volume = 0;
@@ -1689,7 +1751,7 @@ body{
   }
 
   function toMenuMusic(){
-    if(muted) return;
+    if(muted || audioParked) return;
     if(musicOk && !music.paused) fade(music, 0, 600, true);
     if(titleOk){
       titleMusic.volume = 0;
@@ -1697,6 +1759,65 @@ body{
       fade(titleMusic, menuVolume(), 800, false);
     }
   }
+
+  /* ==========================================================
+     Leaving the app
+
+     A locked screen or a switch to another app does not stop a web page,
+     so without this the music keeps playing in the child's pocket.
+     ========================================================== */
+
+  var audioParked = false;
+
+  function parkAudio(){
+    audioParked = true;
+    try{ music.pause(); }catch(e){}
+    try{ titleMusic.pause(); }catch(e){}
+    stopVoice();
+    stopCalmNoise();
+    Object.keys(clips).forEach(function(k){
+      try{ clips[k].pause(); clips[k].currentTime = 0; }catch(e){}
+    });
+    try{ if(audioCtx && audioCtx.state === 'running') audioCtx.suspend(); }catch(e){}
+  }
+
+  function unparkAudio(){
+    if(!audioParked) return;
+    audioParked = false;
+    if(muted) return;
+    try{ if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }catch(e){}
+    /* the opening screen has not had its tap yet, so leave it silent */
+    if(!wakeVeil.hidden) return;
+    if(onMenu() && titleOk){
+      titleMusic.volume = menuVolume();
+      titleMusic.play().catch(function(){});
+    }else if(musicOk){
+      music.volume = gameVolume();
+      music.play().catch(function(){});
+    }
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){
+      parkAudio();
+      /* the calm routine is timed; picking it up half way through would be
+         confusing, so it stops and the child starts it again */
+      if(calmState){
+        stopEverything();
+        homeVeil.hidden = false;
+        field.innerHTML = '';
+        prompt.innerHTML = '';
+      }
+    }else{
+      unparkAudio();
+    }
+  });
+
+  /* pagehide is the one that fires reliably on iOS when the app is left */
+  window.addEventListener('pagehide', parkAudio);
+  window.addEventListener('freeze', parkAudio);
+  window.addEventListener('pageshow', unparkAudio);
+  window.addEventListener('resume', unparkAudio);
 
   function setMuted(state){
     muted = state;
@@ -2080,7 +2201,7 @@ body{
 
     colors: {
       label: 'Colors',
-      icon: 'crystal-sky-lantern-transparent.png',
+      icon: 'paintbrush-transparent.png',
       done: 'You know your colors!',
       plan: function(){ return adaptivePlan('colors', COLORS.slice(), 8, false); },
       choices: function(target, round){
@@ -2180,7 +2301,7 @@ body{
 
     stones: {
       label: 'Stepping Stones',
-      icon: 'hourglass-treasure.png',
+      icon: 'stones-icon.png',
       done: 'Ciela crossed the stream!',
       custom: true,
       roundsPerGame: 4,
@@ -2615,14 +2736,40 @@ body{
       b.setAttribute('aria-label', f.name);
       b.addEventListener('click', function(){
         calmState.feeling = f;
-        beginBreathing();
+        offerPath();
       });
       row.appendChild(b);
     });
     box.appendChild(row);
   }
 
-  /* 2 - five slow breaths */
+  /* 2 - breathe, or go straight to something to do */
+  function offerPath(){
+    var box = calmScreen();
+    calmSay('Big feelings are okay. What shall we do?');
+    playClip('calm-slow');
+
+    var row = document.createElement('div');
+    row.className = 'row';
+
+    var breathe = document.createElement('button');
+    breathe.className = 'go';
+    breathe.type = 'button';
+    breathe.textContent = 'Take five breaths';
+    breathe.addEventListener('click', beginBreathing);
+
+    var pick = document.createElement('button');
+    pick.className = 'go ghost';
+    pick.type = 'button';
+    pick.textContent = 'Pick something calming';
+    pick.addEventListener('click', chooseActivity);
+
+    row.appendChild(breathe);
+    row.appendChild(pick);
+    box.appendChild(row);
+  }
+
+  /* 3 - five slow breaths */
   function beginBreathing(){
     var box = calmScreen();
     calmSay('Big feelings are okay. Let us slow down together.');
@@ -2654,12 +2801,26 @@ body{
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     /* Unhurried on purpose: a four-second in-breath is the point of the
        exercise, and the pause between breaths is where a child settles. */
-    var IN    = reduce ? 1600 : 5000;
-    var HOLD  = reduce ?  600 : 1600;
-    var OUT   = reduce ? 2000 : 6000;
-    var REST  = reduce ?  700 : 2200;
+    var IN    = reduce ? 1400 : 3600;
+    var HOLD  = reduce ?  400 :  900;
+    var OUT   = reduce ? 1600 : 4400;
+    var REST  = reduce ?  500 : 1000;
 
     cloud.style.transitionDuration = (IN / 1000) + 's';
+
+    /* a child who wants to get on with it should not be trapped here */
+    var skip = document.createElement('button');
+    skip.className = 'go ghost';
+    skip.type = 'button';
+    skip.textContent = 'Choose something else';
+    skip.addEventListener('click', function(){
+      if(calmState) calmState.stopped = true;
+      stopVoice();
+      calmState = { breaths:5 };
+      setCrewLook(true);
+      chooseActivity();
+    });
+    box.appendChild(skip);
 
     setTimeout(function breathe(){
       if(!calmState || calmState.stopped) return;
@@ -2690,7 +2851,7 @@ body{
               calmSay('We took five slow breaths!');
               playClip('calm-five');
               react('cheer');
-              setTimeout(chooseActivity, 2400);
+              setTimeout(chooseActivity, 1800);
             }else{
               calmSay('\u2026');
               setTimeout(breathe, REST);
@@ -2698,10 +2859,10 @@ body{
           }, OUT);
         }, HOLD);
       }, IN);
-    }, 2600);
+    }, 1600);
   }
 
-  /* 3 - pick something calming */
+  /* 4 - pick something calming */
   function chooseActivity(){
     var box = calmScreen();
     calmSay('Wonderful! Now, what could help us feel calmer?');
@@ -2848,6 +3009,8 @@ body{
         setTimeout(function(){
           if(!calmState || calmState.stopped) return;
           poseImg.src = pose.file;
+          /* the same picture mirrored, so she really does lean the other way */
+          poseImg.style.transform = pose.flip ? 'scaleX(-1)' : 'none';
           poseImg.style.visibility = '';
           poseImg.classList.remove('swap');
           calmSay(pose.say);
@@ -3153,6 +3316,7 @@ body{
 
   /* ---------- gentle soundscapes, synthesised so nothing extra loads ---------- */
   function startCalmNoise(kind){
+    if(muted || audioParked) return;
     try{
       if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -3196,7 +3360,7 @@ body{
           g.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.4);
           o.connect(g).connect(audioCtx.destination);
           o.start(t0); o.stop(t0 + 2.5);
-        }, 2600);
+        }, 1600);
       }
 
       calmNoise = { src:src, gain:gain, chime:chime };
@@ -3509,10 +3673,12 @@ body{
   function sizeStream(count, tileCount){
     var box = field.getBoundingClientRect();
     var w = Math.max(160, box.width), h = Math.max(160, box.height);
-    var stone = Math.min((w * 0.88) / count - 8, h * 0.18, 78);
+    var stone = Math.min((w * 0.88) / count - 8, h * 0.17, 78);
     var perRow = Math.min(tileCount, Math.max(4, Math.floor(w / 78)));
-    var tile = Math.min((w * 0.9) / perRow - 10, h * 0.16, 70);
-    return { stone:Math.max(28, stone), tile:Math.max(32, tile) };
+    var tile = Math.min((w * 0.9) / perRow - 10, h * 0.15, 70);
+    /* Ciela has to fit above the stones without pushing the tiles off screen */
+    var walk = Math.min(stone * 1.7, h * 0.26, 150);
+    return { stone:Math.max(28, stone), tile:Math.max(32, tile), walk:Math.max(40, walk) };
   }
 
   function nextCrossing(){
@@ -3560,7 +3726,8 @@ body{
     walker.className = 'walker';
     walker.src = 'ciela-idle.png';
     walker.alt = '';
-    walker.style.setProperty('--walk', (sz.stone * 1.15).toFixed(0) + 'px');
+    walker.style.setProperty('--walk', sz.walk.toFixed(0) + 'px');
+    stream.style.setProperty('--walkspace', (sz.walk * 1.05).toFixed(0) + 'px');
     walker.addEventListener('error', function(){ walker.hidden = true; });
     stream.appendChild(walker);
 
@@ -4016,6 +4183,7 @@ body{
     stopEverything();
     modeKey = key;
     mode = MODES[key];
+    warmClips((CLIP_NEEDS[key] || []).concat(['cheer-','win','correct','wrong']));
     levelVeil.hidden = true;
     homeVeil.hidden = true;
     winVeil.hidden = true;
