@@ -259,6 +259,35 @@ body{
 }
 .veil[hidden]{opacity:0;visibility:hidden;display:flex;pointer-events:none}
 
+/* an opaque screen - nothing from the last game shows through blurred */
+.veil.solid{
+  background:linear-gradient(180deg,#8FD8EA 0%,#BFE7E4 46%,#F7E3B6 100%);
+  backdrop-filter:none;
+}
+.veil.solid::before{
+  content:'';position:absolute;inset:0;
+  background-image:url('backgroundPlate.png');
+  background-size:cover;background-position:center;
+  opacity:.5;pointer-events:none;
+}
+.veil.solid > *{position:relative;z-index:1}
+
+/* Ciela and Chispa stand at the edges of the home screen */
+.crew-fig{
+  position:absolute;bottom:0;z-index:0;
+  height:min(46vh,420px);width:auto;
+  filter:drop-shadow(0 10px 18px rgba(9,60,70,.35));
+  pointer-events:none;
+}
+.ciela-fig{left:max(4px,calc((100vw - 720px) / 2 - 190px))}
+.chispa-fig{right:max(4px,calc((100vw - 720px) / 2 - 180px));height:min(30vh,280px)}
+.crew-fig[hidden]{display:none}
+
+/* on a narrow screen they would sit on top of the tiles, so hide them */
+@media (max-width:900px){
+  .crew-fig{display:none}
+}
+
 /* when the content is taller than the screen, scroll from the top so the
    logo is never sliced off */
 .veil{justify-content:safe center}
@@ -266,6 +295,21 @@ body{
   .veil{justify-content:flex-start}
 }
 .veil.wake{z-index:12;cursor:pointer}
+
+/* full-bleed artwork behind the opening and the celebration */
+.scene-wake,.scene-win{background:#0E7C86}
+.scene-wake::before,.scene-win::before{
+  content:'';position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  pointer-events:none;
+}
+.scene-wake::before{background-image:url('village-scene.jpg')}
+.scene-win::before{background-image:url('ciela-chispa.jpg')}
+.scene-wake::after,.scene-win::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 45%,rgba(8,50,60,.30),rgba(8,50,60,.68));
+}
+.scene-wake > *,.scene-win > *{position:relative;z-index:1}
 
 .veil-mark{width:min(52vw,280px);max-height:22vh;height:auto;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 6px 18px rgba(8,50,60,.45))}
 .veil-mark[hidden]{display:none}
@@ -1117,12 +1161,14 @@ body{
   </div>
 </div>
 
-<div class="veil wake" id="wakeVeil">
+<div class="veil wake scene-wake" id="wakeVeil">
   <img class="veil-mark" id="wakeMark" src="cielaWorldLogo.png" alt="Ciela's World of Learning">
   <p class="tap-hint">Tap anywhere to begin</p>
 </div>
 
-<div class="veil" id="homeVeil" hidden>
+<div class="veil solid" id="homeVeil" hidden>
+  <img class="crew-fig ciela-fig" id="homeCiela" src="ciela-hello.png" alt="">
+  <img class="crew-fig chispa-fig" id="homeChispa" src="chispa-look.png" alt="">
   <img class="veil-mark" id="homeMark" src="cielaWorldLogo.png" alt="Ciela's World of Learning">
   <p>Pick a game to play with Ciela.</p>
   <div class="tiles" id="tiles"></div>
@@ -1173,7 +1219,7 @@ body{
   <button class="go ghost" id="levelBack">Other games</button>
 </div>
 
-<div class="veil" id="winVeil" hidden>
+<div class="veil scene-win" id="winVeil" hidden>
   <h1 id="winTitle">You did it!</h1>
   <div class="trophy" id="trophy"></div>
   <div class="prize" id="prize" hidden>
@@ -1412,7 +1458,7 @@ body{
     el.addEventListener('error', function(){ el.hidden = true; });
     if(el.complete && el.naturalWidth === 0) el.hidden = true;
   }
-  ['mark','ciela','chispa','wakeMark','homeMark'].forEach(function(id){
+  ['mark','ciela','chispa','wakeMark','homeMark','homeCiela','homeChispa'].forEach(function(id){
     hideIfBroken(document.getElementById(id));
   });
 
@@ -1537,8 +1583,9 @@ body{
 
   /* Music sits well under Ciela everywhere, and lower still during the
      calm routine where the exercise is the point. */
-  function gameVolume(){ return 0.13; }
-  function menuVolume(){ return modeKey === 'calm' ? 0.07 : 0.30; }
+  /* quieter still in the calm routine, where the exercise is the point */
+  function gameVolume(){ return modeKey === 'calm' ? 0.07 : 0.13; }
+  function menuVolume(){ return 0.30; }
 
   /* whichever track is currently audible */
   function activeTrack(){
@@ -1548,7 +1595,6 @@ body{
   }
 
   function onMenu(){
-    if(modeKey === 'calm') return true;   /* the calm routine stays on the theme */
     return !wakeVeil.hidden || !homeVeil.hidden || !winVeil.hidden ||
            !document.getElementById('levelVeil').hidden ||
            !document.getElementById('vaultVeil').hidden ||
@@ -2632,7 +2678,7 @@ body{
               calmSay('We took five slow breaths!');
               playClip('calm-five');
               react('cheer');
-              setTimeout(chooseActivity, 3600);
+              setTimeout(chooseActivity, 2400);
             }else{
               calmSay('\u2026');
               setTimeout(breathe, REST);
@@ -3950,26 +3996,15 @@ body{
      ========================================================== */
 
   function startMode(key){
+    stopEverything();
     modeKey = key;
     mode = MODES[key];
-    /* Calm-Down Clouds keeps the gentle theme rather than the game loop */
-    var keepTheme = (key === 'calm');
-    deckState = null;
-    bridgeState = null;
     levelVeil.hidden = true;
     homeVeil.hidden = true;
     winVeil.hidden = true;
-    if(keepTheme){
-      /* ease the theme down so the breathing sits on top of it */
-      if(titleOk && !titleMusic.paused) fade(titleMusic, menuVolume(), 1200, false);
-      else if(titleOk && !muted){
-        titleMusic.volume = 0;
-        titleMusic.play().catch(function(){});
-        fade(titleMusic, menuVolume(), 1200, false);
-      }
-    }else{
-      toGameMusic();
-    }
+    /* the sung theme belongs to the menus; every game, including the calm
+       routine, plays the instrumental underneath */
+    toGameMusic();
 
     if(mode.custom){
       rounds = [];
@@ -3985,10 +4020,25 @@ body{
     newRound();
   }
 
-  function goHome(){
-    chispaFace('rest');
+  /* Every activity that schedules its own timers has to be shut down
+     explicitly, or it keeps talking over whatever screen comes next. */
+  function stopEverything(){
+    if(calmState){
+      calmState.stopped = true;
+      if(calmState.stopGlitter) calmState.stopGlitter();
+    }
+    calmState = null;
     deckState = null;
     bridgeState = null;
+    stoneState = null;
+    crystalState = null;
+    stopCalmNoise();
+    stopVoice();
+    chispaFace('rest');
+  }
+
+  function goHome(){
+    stopEverything();
     levelVeil.hidden = true;
     vaultVeil.hidden = true;
     document.getElementById('certVeil').hidden = true;
@@ -4003,7 +4053,6 @@ body{
     homeVeil.hidden = false;
     buildGems(gemRow, 0);
     buildTiles();
-    stopVoice();
     toMenuMusic();
   }
 
