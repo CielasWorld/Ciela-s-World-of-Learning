@@ -249,16 +249,25 @@ body{
 .veil{
   position:fixed;inset:0;z-index:10;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:clamp(12px,3vh,26px);padding:20px;text-align:center;
+  gap:clamp(12px,3vh,26px);
+  padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));
+  text-align:center;
   background:radial-gradient(ellipse at 50% 35%,rgba(255,255,255,.5),rgba(14,124,134,.74));
   backdrop-filter:blur(3px);
   transition:opacity .45s ease,visibility .45s;
   overflow-y:auto;
 }
 .veil[hidden]{opacity:0;visibility:hidden;display:flex;pointer-events:none}
+
+/* when the content is taller than the screen, scroll from the top so the
+   logo is never sliced off */
+.veil{justify-content:safe center}
+@supports not (justify-content: safe center){
+  .veil{justify-content:flex-start}
+}
 .veil.wake{z-index:12;cursor:pointer}
 
-.veil-mark{width:min(60vw,320px);height:auto;filter:drop-shadow(0 6px 18px rgba(8,50,60,.45))}
+.veil-mark{width:min(52vw,280px);max-height:22vh;height:auto;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 6px 18px rgba(8,50,60,.45))}
 .veil-mark[hidden]{display:none}
 
 .veil h1{
@@ -1108,7 +1117,7 @@ body{
   <p>Pick a game to play with Ciela.</p>
   <div class="tiles" id="tiles"></div>
   <button class="chest" id="chestBtn">
-    <span class="chest-icon">\u2605</span>
+    <span class="chest-icon">&#9733;</span>
     <span class="chest-text">Treasures <b id="chestCount">0 / 20</b></span>
   </button>
   <button class="grownups" id="grownupsBtn">For grown-ups</button>
@@ -1519,6 +1528,7 @@ body{
   function gameVolume(){ return musicIsVocal ? 0.16 : 0.32; }
 
   function onMenu(){
+    if(modeKey === 'calm') return true;   /* the calm routine stays on the theme */
     return !wakeVeil.hidden || !homeVeil.hidden || !winVeil.hidden ||
            !document.getElementById('levelVeil').hidden ||
            !document.getElementById('vaultVeil').hidden ||
@@ -2085,7 +2095,7 @@ body{
 
     calm: {
       label: 'Calm-Down Clouds',
-      icon: 'crystal-sky-lantern-transparent.png',
+      icon: 'cielaBust.png',
       done: 'You gave your body time to slow down.',
       custom: true,
       start: function(){ startCalm(); }
@@ -2093,7 +2103,7 @@ body{
 
     crystals: {
       label: "Ciela's Crystals",
-      icon: 'crystal-sky-lantern-transparent.png',
+      icon: 'gem-pouch-treasure.png',
       done: 'The chest is full of crystals!',
       custom: true,
       roundsPerGame: 5,
@@ -2102,7 +2112,7 @@ body{
 
     stones: {
       label: 'Stepping Stones',
-      icon: 'brass-sundial-transparent.png',
+      icon: 'hourglass-treasure.png',
       done: 'Ciela crossed the stream!',
       custom: true,
       roundsPerGame: 4,
@@ -3899,12 +3909,14 @@ body{
   function startMode(key){
     modeKey = key;
     mode = MODES[key];
+    /* Calm-Down Clouds keeps the gentle theme rather than the game loop */
+    var keepTheme = (key === 'calm');
     deckState = null;
     bridgeState = null;
     levelVeil.hidden = true;
     homeVeil.hidden = true;
     winVeil.hidden = true;
-    toGameMusic();
+    if(!keepTheme) toGameMusic();
 
     if(mode.custom){
       rounds = [];
