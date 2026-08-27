@@ -481,25 +481,7 @@ body{
   var CHEERS = ['Great job!','You got it!','Nice tapping!','Well done!','That is the one!'];
   var ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-  /* Letters whose initial sound is unambiguous in this prop set.
-     Deliberately left out:
-       A E I O U - vowel sounds can't be voiced without naming a word,
-                   and naming the word gives the answer away
-       C         - canteen says /k/, which collides with key
-       G         - "magnifying glass" starts with an m sound, not a g
-       Q         - quill is a /kw/ blend, not a single sound
-       X         - xylophone actually starts with a z sound (the classic trap) */
-  var SOUND_LETTERS = 'BDFGHJKLMNPRSTVWYZ'.split('');
 
-  /* Text-to-speech reads words, not isolated phonemes - asking it for
-     "buh" or "ffff" produces noise a child can't learn from. So each
-     sound is carried by a familiar anchor word instead. None of these
-     words is in the prop set, so none of them gives the answer away. */
-  var SOUND_WORD = {
-    B:'bus',  D:'dog',   F:'fish',  G:'girl',  H:'house', J:'jump',
-    K:'kite', L:'lion',  M:'mouse', N:'nose',  P:'pig',   R:'rabbit',
-    S:'soap', T:'tree', V:'van',   W:'water', Y:'yellow', Z:'zoo'
-  };
 
   /* Prop art already in the repo. `many` drives the counting prompts (always
      plural — "How many lanterns?" reads naturally even when there is one),
@@ -673,17 +655,23 @@ body{
     for(i = 0; i < SHAPES.length; i++) loadClip('shape-' + SHAPES[i].key, 'shape-' + SHAPES[i].key);
     for(i = 0; i < COLORS.length; i++) loadClip('color-' + COLORS[i].key, 'color-' + COLORS[i].key);
     ALPHABET.forEach(function(L){ loadClip('letter-' + L, 'letter-' + L.toLowerCase()); });
-    SOUND_LETTERS.forEach(function(L){ loadClip('sound-' + L, 'sound-' + L.toLowerCase()); });
     PROPS.forEach(function(p){ loadClip('count-' + p.key, 'count-' + p.key); });
   })();
 
+  /* Effects play on their own channel - they must not interrupt, or be
+     interrupted by, Ciela's voice. */
+  function playEffect(key){
+    if(muted) return false;
+    var a = clips[key];
+    if(!a) return false;
+    try{ a.currentTime = 0; a.play(); return true; }catch(e){ return false; }
+  }
+
   function chime(){
-    if(clips['correct']) playClip('correct', null);
-    else tone([523.25, 659.25, 783.99, 1046.5], 'triangle', 0.16);
+    if(!playEffect('correct')) tone([523.25, 659.25, 783.99, 1046.5], 'triangle', 0.16);
   }
   function thud(){
-    if(clips['wrong']) playClip('wrong', null);
-    else tone([196, 174.6], 'sine', 0.11);
+    if(!playEffect('wrong')) tone([196, 174.6], 'sine', 0.11);
   }
 
   var music = new Audio();
@@ -720,40 +708,42 @@ body{
     music.volume = on ? gameVolume() * 0.34 : gameVolume();
   }
 
-  function playClip(key, fallbackText){
-    if(muted) return;
-    var a = clips[key];
-    if(a){
-      try{
-        a.currentTime = 0;
-        duck(true);
-        a.onended = function(){ duck(false); };
-        var p = a.play();
-        if(p && p.catch) p.catch(function(){ say(fallbackText); });
-        return;
-      }catch(e){}
+  /* Only one line of Ciela's voice may be audible at a time. Without this,
+     tapping quickly stacks clips on top of each other. */
+  var nowPlaying = null;
+
+  function stopVoice(){
+    if(nowPlaying){
+      try{ nowPlaying.pause(); nowPlaying.currentTime = 0; }catch(e){}
+      nowPlaying.onended = null;
+      nowPlaying = null;
     }
-    say(fallbackText);
+    duck(false);
   }
 
-  function say(text){
-    if(muted || !text) return;
+  function playClip(key){
+    stopVoice();
+    if(muted) return;
+    var a = clips[key];
+    if(!a) return;
     try{
-      if(!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(text);
-      u.rate = 0.85; u.pitch = 1.25;
-      u.onstart = function(){ duck(true); };
-      u.onend = function(){ duck(false); };
-      var voices = window.speechSynthesis.getVoices();
-      var en = voices.filter(function(v){ return /^en/i.test(v.lang); });
-      var warm = en.filter(function(v){ return /female|samantha|zira|karen|moira|tessa|aria/i.test(v.name); });
-      if(warm.length) u.voice = warm[0];
-      else if(en.length) u.voice = en[0];
-      window.speechSynthesis.speak(u);
-    }catch(e){}
+      a.currentTime = 0;
+      duck(true);
+      nowPlaying = a;
+      a.onended = function(){
+        if(nowPlaying === a) nowPlaying = null;
+        duck(false);
+      };
+      var pr = a.play();
+      if(pr && pr.catch) pr.catch(function(){
+        if(nowPlaying === a) nowPlaying = null;
+        duck(false);
+      });
+    }catch(e){
+      nowPlaying = null;
+      duck(false);
+    }
   }
-  if('speechSynthesis' in window) window.speechSynthesis.getVoices();
 
   function randomCheerKey(){
     var found = [];
@@ -800,7 +790,8 @@ body{
     btn.setAttribute('aria-pressed', muted ? 'true' : 'false');
     btn.setAttribute('aria-label', muted ? 'Turn sound on' : 'Turn sound off');
     if(muted){
-      try{ music.pause(); titleMusic.pause(); window.speechSynthesis.cancel(); }catch(e){}
+      try{ music.pause(); titleMusic.pause(); }catch(e){}
+      stopVoice();
       Object.keys(clips).forEach(function(k){ try{ clips[k].pause(); }catch(e){} });
     }else{
       if(onMenu() && titleOk){ titleMusic.volume = 0.5; titleMusic.play().catch(function(){}); }
@@ -851,12 +842,11 @@ body{
     if(key === 'colors')    return COLORS.map(function(c){ return c.key; });
     if(key === 'letters')   return PROPS.map(function(p){ return p.letter; }).sort();
     if(key === 'lowercase') return PROPS.map(function(p){ return p.letter.toLowerCase(); }).sort();
-    if(key === 'sounds')    return soundProps().map(function(p){ return p.letter; }).sort();
     return [];
   }
 
   function itemLabel(key, id){
-    if(key === 'letters' || key === 'lowercase' || key === 'sounds') return id;
+    if(key === 'letters' || key === 'lowercase') return id;
     if(key === 'counting') return id;
     return id.charAt(0).toUpperCase() + id.slice(1);
   }
@@ -885,10 +875,6 @@ body{
   function sample(list, count, exclude){
     var pool = list.filter(function(x){ return x !== exclude; });
     return shuffle(pool.slice()).slice(0, count);
-  }
-
-  function soundProps(){
-    return PROPS.filter(function(p){ return SOUND_LETTERS.indexOf(p.letter) > -1; });
   }
 
   function numberPool(){
@@ -982,7 +968,6 @@ body{
   function keyOfItem(mKey, item){
     if(mKey === 'letters')   return item.letter;
     if(mKey === 'lowercase') return item.letter.toLowerCase();
-    if(mKey === 'sounds')    return item.letter;
     if(item && typeof item === 'object') return item.key;
     return String(item);
   }
@@ -1189,43 +1174,8 @@ body{
                 target.letter + ' is for ' + target.one + '. Find the small ' + target.letter + '.'];
       },
       render: function(value){ return glyphButton(value, 'small letter ' + value); }
-    },
-
-    /* Initial-sound isolation: Ciela says a sound, the child picks the
-       picture that starts with it. No letter is shown, on purpose —
-       the whole task is listening. */
-    sounds: {
-      label: 'Sounds',
-      icon: 'bird-signal-whistle-transparent.png',
-      done: 'You heard every sound!',
-      plan: function(){ return adaptivePlan('sounds', soundProps(), 10, false); },
-      itemKey: function(target){ return target.letter; },
-      choices: function(target, round){
-        var count = round <= 3 ? 2 : round <= 6 ? 3 : 4;
-        return shuffle([target].concat(sample(soundProps(), count - 1, target)));
-      },
-      prompt: function(target){
-        var word = SOUND_WORD[target.letter] || target.one;
-        return '<span>Which one starts like <em>' + word + '</em>?</span>';
-      },
-      speak: function(target){
-        var word = SOUND_WORD[target.letter] || target.one;
-        return ['sound-' + target.letter,
-                'Which one starts like ' + word + '?'];
-      },
-      render: function(value){
-        var b = document.createElement('button');
-        b.className = 'pick';
-        b.type = 'button';
-        var img = document.createElement('img');
-        img.src = value.file;
-        img.alt = '';
-        b.appendChild(img);
-        b.setAttribute('aria-label', value.one);
-        return b;
-      },
-      same: function(a, b){ return a.letter === b.letter; }
     }
+
   };
 
   /* ==========================================================
@@ -1243,6 +1193,7 @@ body{
   }
 
   function newRound(){
+    stopVoice();
     busy = false;
     field.classList.remove('locked');
     field.innerHTML = '';
@@ -1308,8 +1259,7 @@ body{
   function speakPrompt(){
     if(!mode || !rounds.length) return;
     var pair = mode.speak.call(mode, currentTarget());
-    if(pair[0]) playClip(pair[0], pair[1]);
-    else say(pair[1]);
+    if(pair[0]) playClip(pair[0]);
   }
 
   function react(mood){
@@ -1375,8 +1325,7 @@ body{
 
     setTimeout(function(){
       var key = randomCheerKey();
-      if(key) playClip(key, null);
-      else say(cheer);
+      if(key) playClip(key);
     }, 280);
 
     setTimeout(function(){
@@ -1391,7 +1340,7 @@ body{
     buildGems(trophy, rounds.length);
     lightGems(trophy, rounds.length);
     winVeil.hidden = false;
-    setTimeout(function(){ playClip('win', mode.done); }, 450);
+    setTimeout(function(){ playClip('win'); }, 450);
     setTimeout(toMenuMusic, 1400);
   }
 
@@ -1421,7 +1370,7 @@ body{
     homeVeil.hidden = false;
     buildGems(gemRow, 0);
     buildTiles();
-    try{ window.speechSynthesis.cancel(); }catch(e){}
+    stopVoice();
     toMenuMusic();
   }
 
