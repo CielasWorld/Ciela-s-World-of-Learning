@@ -313,7 +313,15 @@ body{
 .tile img{width:clamp(44px,11vw,72px);height:auto}
 .tile .glyphicon{
   font-family:'Baloo 2',cursive;font-weight:800;
-  font-size:clamp(32px,8vw,54px);color:var(--teal);line-height:1;
+  font-size:clamp(26px,6.6vw,44px);line-height:1.15;
+  letter-spacing:.02em;
+  display:flex;align-items:center;justify-content:center;
+  height:clamp(44px,11vw,72px);
+  color:transparent;
+  background-image:linear-gradient(165deg,#FFFFFF 0%,#BFF0F4 24%,var(--teal) 62%,var(--teal-deep) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-stroke:clamp(1.5px,.45vw,2.6px) var(--gold);
+  paint-order:stroke fill;
 }
 .tile span{
   font-family:'Baloo 2',cursive;font-weight:700;
@@ -577,7 +585,9 @@ body{
 }
 .breath-cloud{
   width:36%;height:36%;
-  transition:transform 4s ease-in-out, opacity 4s ease-in-out;
+  transition-property:transform;
+  transition-timing-function:cubic-bezier(.37,0,.63,1);
+  transition-duration:5s;
   transform:scale(1);
 }
 .breath-cloud.inhale{transform:scale(2.5)}
@@ -1227,8 +1237,8 @@ body{
   /* Poses for Stretch Like Ciela. Held slowly, three in a row. */
   var STRETCHES = [
     { file:'ciela-reach.png',      say:'Reach up as tall as you can.' },
-    { file:'ciela-side-left.png',  say:'Lean gently to one side.' },
-    { file:'ciela-side-right.png', say:'Now lean to the other side.' },
+    { file:'ciela-side-left.png',  say:'Lean gently to one side.',      side:1 },
+    { file:'ciela-side-right.png', say:'Now lean to the other side.',   side:2 },
     { file:'ciela-bend.png',       say:'Bend forward and let your arms hang.' },
     { file:'ciela-open.png',       say:'Open your arms out wide.' }
   ];
@@ -1518,14 +1528,24 @@ body{
   }
 
   var music = new Audio();
-  var musicOk = false, musicIsVocal = false;
+  var musicOk = false;
   music.loop = true; music.preload = 'auto';
 
   var titleMusic = new Audio();
   var titleOk = false;
-  titleMusic.loop = true; titleMusic.preload = 'auto'; titleMusic.volume = 0.5;
+  titleMusic.loop = true; titleMusic.preload = 'auto'; titleMusic.volume = 0.30;
 
-  function gameVolume(){ return musicIsVocal ? 0.16 : 0.32; }
+  /* Music sits well under Ciela everywhere, and lower still during the
+     calm routine where the exercise is the point. */
+  function gameVolume(){ return 0.13; }
+  function menuVolume(){ return modeKey === 'calm' ? 0.07 : 0.30; }
+
+  /* whichever track is currently audible */
+  function activeTrack(){
+    if(titleOk && !titleMusic.paused) return { el:titleMusic, base:menuVolume() };
+    if(musicOk && !music.paused)      return { el:music,      base:gameVolume() };
+    return null;
+  }
 
   function onMenu(){
     if(modeKey === 'calm') return true;   /* the calm routine stays on the theme */
@@ -1541,7 +1561,8 @@ body{
 
   function tracksReady(){
     if(++tracksIn < 2) return;
-    if(!themeUrl && titleUrl){ themeUrl = titleUrl; musicIsVocal = true; }
+    /* The sung theme is for menus only. If no instrumental has been added,
+       gameplay stays quiet rather than putting lyrics under Ciela's voice. */
     if(themeUrl){ music.src = themeUrl; music.volume = gameVolume(); musicOk = true; }
     if(titleUrl){ titleMusic.src = titleUrl; titleOk = true; }
     if(titleOk && !muted && onMenu()) titleMusic.play().catch(function(){});
@@ -1551,8 +1572,9 @@ body{
   findFile('title-theme', function(url){ titleUrl = url; tracksReady(); });
 
   function duck(on){
-    if(!musicOk || music.paused) return;
-    music.volume = on ? gameVolume() * 0.34 : gameVolume();
+    var t = activeTrack();
+    if(!t) return;
+    t.el.volume = on ? t.base * 0.28 : t.base;
   }
 
   /* Only one line of Ciela's voice may be audible at a time. Without this,
@@ -1626,7 +1648,7 @@ body{
     if(titleOk){
       titleMusic.volume = 0;
       titleMusic.play().catch(function(){});
-      fade(titleMusic, 0.5, 800, false);
+      fade(titleMusic, menuVolume(), 800, false);
     }
   }
 
@@ -1641,7 +1663,7 @@ body{
       stopVoice();
       Object.keys(clips).forEach(function(k){ try{ clips[k].pause(); }catch(e){} });
     }else{
-      if(onMenu() && titleOk){ titleMusic.volume = 0.5; titleMusic.play().catch(function(){}); }
+      if(onMenu() && titleOk){ titleMusic.volume = menuVolume(); titleMusic.play().catch(function(){}); }
       else if(musicOk){ music.volume = gameVolume(); music.play().catch(function(){}); }
     }
   }
@@ -1950,7 +1972,7 @@ body{
 
     numbers: {
       label: 'Numbers',
-      icon: 'brass-sundial-transparent.png',
+      icon: 'text:123',
       done: 'You found all ten numbers!',
       plan: function(){ return adaptivePlan('numbers', numberPool(), 10, true); },
       choices: function(target, round){
@@ -2034,7 +2056,7 @@ body{
 
     letters: {
       label: 'Letters',
-      icon: 'magical-quill-and-inkwell-transparent.png',
+      icon: 'text:ABC',
       done: 'You found all the letters!',
       plan: function(){ return adaptivePlan('letters', PROPS.slice(), 10, false); },
       answer: function(target){ return target.letter; },
@@ -2060,7 +2082,7 @@ body{
        is exactly the association being taught. */
     lowercase: {
       label: 'Small Letters',
-      icon: 'paintbrush-transparent.png',
+      icon: 'text:abc',
       done: 'You found all the small letters!',
       plan: function(){ return adaptivePlan('lowercase', PROPS.slice(), 10, false); },
       answer: function(target){ return target.letter.toLowerCase(); },
@@ -2095,7 +2117,7 @@ body{
 
     calm: {
       label: 'Calm-Down Clouds',
-      icon: 'cielaBust.png',
+      icon: 'ciela-calm.png',
       done: 'You gave your body time to slow down.',
       custom: true,
       start: function(){ startCalm(); }
@@ -2572,36 +2594,53 @@ body{
     calmState.breaths = 0;
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var IN = reduce ? 1200 : 4000, OUT = reduce ? 1200 : 4000;
+    /* Unhurried on purpose: a four-second in-breath is the point of the
+       exercise, and the pause between breaths is where a child settles. */
+    var IN    = reduce ? 1600 : 5000;
+    var HOLD  = reduce ?  600 : 1600;
+    var OUT   = reduce ? 2000 : 6000;
+    var REST  = reduce ?  700 : 2200;
+
+    cloud.style.transitionDuration = (IN / 1000) + 's';
 
     setTimeout(function breathe(){
       if(!calmState || calmState.stopped) return;
       calmSay('Breathe in while the cloud grows.');
       playClip('calm-in');
+      cloud.style.transitionDuration = (IN / 1000) + 's';
       cloud.classList.add('inhale');
 
       setTimeout(function(){
         if(!calmState || calmState.stopped) return;
-        calmSay('Now breathe out while it becomes smaller.');
-        playClip('calm-out');
-        cloud.classList.remove('inhale');
+        /* a quiet moment at the top of the breath */
+        calmSay('\u2026');
 
         setTimeout(function(){
           if(!calmState || calmState.stopped) return;
-          calmState.breaths++;
-          var lit = dots.children[calmState.breaths - 1];
-          if(lit) lit.classList.add('on');
-          if(calmState.breaths >= 5){
-            calmSay('We took five slow breaths!');
-            playClip('calm-five');
-            react('cheer');
-            setTimeout(chooseActivity, 2600);
-          }else{
-            breathe();
-          }
-        }, OUT);
+          calmSay('Now breathe out while it becomes smaller.');
+          playClip('calm-out');
+          cloud.style.transitionDuration = (OUT / 1000) + 's';
+          cloud.classList.remove('inhale');
+
+          setTimeout(function(){
+            if(!calmState || calmState.stopped) return;
+            calmState.breaths++;
+            var lit = dots.children[calmState.breaths - 1];
+            if(lit) lit.classList.add('on');
+
+            if(calmState.breaths >= 5){
+              calmSay('We took five slow breaths!');
+              playClip('calm-five');
+              react('cheer');
+              setTimeout(chooseActivity, 3600);
+            }else{
+              calmSay('\u2026');
+              setTimeout(breathe, REST);
+            }
+          }, OUT);
+        }, HOLD);
       }, IN);
-    }, 1800);
+    }, 2600);
   }
 
   /* 3 - pick something calming */
@@ -2734,11 +2773,15 @@ body{
       box.appendChild(stage);
       box.appendChild(ring);
 
-      var picked = shuffle(STRETCHES.slice()).slice(0, 3);
+      /* Leaning one way and not the other leaves a child lopsided, so the
+         two side stretches always travel together and in order. */
+      var sides = STRETCHES.filter(function(x){ return x.side; });
+      var rest  = shuffle(STRETCHES.filter(function(x){ return !x.side; }));
+      var picked = [rest[0]].concat(sides);
       var idx = 0;
       var arc = ring.querySelectorAll('circle')[1];
       var reduceS = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var HOLD = reduceS ? 2200 : 6000;
+      var HOLD = reduceS ? 3000 : 10000;
 
       (function doPose(){
         if(!calmState || calmState.stopped) return;
@@ -2751,7 +2794,7 @@ body{
           poseImg.classList.remove('swap');
           calmSay(pose.say);
           playClip('num-' + (idx + 1));
-        }, 380);
+        }, 700);
 
         var t0 = Date.now();
         var timer = setInterval(function(){
@@ -3916,7 +3959,17 @@ body{
     levelVeil.hidden = true;
     homeVeil.hidden = true;
     winVeil.hidden = true;
-    if(!keepTheme) toGameMusic();
+    if(keepTheme){
+      /* ease the theme down so the breathing sits on top of it */
+      if(titleOk && !titleMusic.paused) fade(titleMusic, menuVolume(), 1200, false);
+      else if(titleOk && !muted){
+        titleMusic.volume = 0;
+        titleMusic.play().catch(function(){});
+        fade(titleMusic, menuVolume(), 1200, false);
+      }
+    }else{
+      toGameMusic();
+    }
 
     if(mode.custom){
       rounds = [];
@@ -4195,16 +4248,23 @@ body{
       b.className = 'tile';
       b.type = 'button';
 
-      var img = document.createElement('img');
-      img.src = m.icon;
-      img.alt = '';
-      img.addEventListener('error', function(){
-        var span = document.createElement('span');
-        span.className = 'glyphicon';
-        span.textContent = m.label.charAt(0);
-        img.replaceWith(span);
-      });
-      b.appendChild(img);
+      if(m.icon.indexOf('text:') === 0){
+        var glyph = document.createElement('span');
+        glyph.className = 'glyphicon';
+        glyph.textContent = m.icon.slice(5);
+        b.appendChild(glyph);
+      }else{
+        var img = document.createElement('img');
+        img.src = m.icon;
+        img.alt = '';
+        img.addEventListener('error', function(){
+          var span = document.createElement('span');
+          span.className = 'glyphicon';
+          span.textContent = m.label.charAt(0);
+          img.replaceWith(span);
+        });
+        b.appendChild(img);
+      }
 
       var label = document.createElement('span');
       label.textContent = m.label;
@@ -4246,7 +4306,7 @@ body{
     wakeVeil.hidden = true;
     homeVeil.hidden = false;
     if(!muted && titleOk){
-      titleMusic.volume = 0.5;
+      titleMusic.volume = menuVolume();
       titleMusic.play().catch(function(){});
     }
   });
