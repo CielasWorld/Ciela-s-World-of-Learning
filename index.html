@@ -459,6 +459,216 @@ body{
 .level .lv-sub{font-family:'Nunito',sans-serif;font-weight:700;font-size:clamp(11px,2.8vw,13px);color:#5b7f88}
 .level .lv-stars{margin-left:auto;font-size:clamp(11px,2.8vw,14px);color:var(--gold);font-weight:800;white-space:nowrap}
 
+/* ---------- Chispa's quiet corner ---------- */
+
+.corner{
+  position:relative;
+  flex:1;min-height:0;width:100%;
+  border-radius:20px;overflow:hidden;
+  background-image:url('quiet-corner.jpg');
+  background-size:cover;background-position:center bottom;
+  box-shadow:inset 0 0 0 3px var(--gold),0 6px 16px rgba(9,60,70,.3);
+  touch-action:none;
+}
+
+/* the rug is roughly the middle-lower half of the picture */
+.corner-rug{
+  position:absolute;left:6%;right:22%;top:52%;bottom:6%;
+  border-radius:50%;
+}
+
+.cosy{
+  position:absolute;
+  width:var(--cw,86px);
+  transform:translate(-50%,-50%);
+  cursor:grab;touch-action:none;
+  filter:drop-shadow(0 5px 10px rgba(9,60,70,.45));
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.cosy:active{cursor:grabbing}
+.cosy.placed{filter:drop-shadow(0 4px 9px rgba(9,60,70,.4))}
+.cosy.pop{animation:matchPop .45s cubic-bezier(.34,1.56,.64,1)}
+
+.tray{
+  flex:0 0 auto;
+  display:flex;gap:clamp(8px,3vw,20px);
+  align-items:center;justify-content:center;
+  padding-top:4px;
+}
+.tray-item{
+  width:clamp(52px,15vw,96px);
+  border:0;background:none;padding:0;cursor:pointer;
+  transition:transform .2s ease,opacity .3s ease;
+}
+.tray-item img{width:100%;height:auto;filter:drop-shadow(0 4px 9px rgba(9,60,70,.4))}
+.tray-item:hover,.tray-item:focus-visible{transform:translateY(-4px)}
+.tray-item:focus-visible{outline:4px solid #fff;outline-offset:4px;border-radius:14px}
+.tray-item.done{opacity:.25;pointer-events:none}
+
+/* ---------- stretch along ---------- */
+
+.stretch-stage{
+  flex:1;min-height:0;
+  display:flex;align-items:center;justify-content:center;
+  width:100%;
+}
+.stretch-stage img{
+  max-height:100%;max-width:min(60vw,300px);
+  width:auto;height:auto;object-fit:contain;
+  filter:drop-shadow(0 8px 16px rgba(9,60,70,.4));
+  transition:opacity .45s ease,transform .45s ease;
+}
+.stretch-stage img.swap{opacity:0;transform:scale(.94)}
+
+.hold-ring{
+  width:clamp(48px,13vw,84px);height:clamp(48px,13vw,84px);
+  flex:0 0 auto;
+}
+.hold-ring circle{transition:stroke-dashoffset .25s linear}
+
+/* ---------- calm-down clouds ---------- */
+
+.calm{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(8px,2.4vh,20px);
+  padding:clamp(6px,1.6vw,14px);
+  overflow:hidden;text-align:center;
+}
+
+.calm-say{
+  font-family:'Baloo 2',cursive;font-weight:700;
+  font-size:clamp(15px,4vw,24px);color:var(--navy);
+  background:rgba(255,255,255,.86);
+  padding:9px 22px;border-radius:999px;
+  box-shadow:0 4px 16px rgba(12,70,80,.2),inset 0 0 0 2px rgba(232,183,90,.55);
+  max-width:92%;
+}
+
+.faces{display:flex;flex-wrap:wrap;gap:clamp(7px,2.4vw,16px);justify-content:center;max-width:96%}
+.face{
+  width:clamp(64px,18vw,116px);
+  border:0;background:none;padding:0;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:transform .18s ease;
+}
+.face:hover,.face:focus-visible{transform:translateY(-3px)}
+.face:focus-visible{outline:4px solid #fff;outline-offset:4px;border-radius:18px}
+.face svg{width:100%;height:auto;filter:drop-shadow(0 5px 10px rgba(9,60,70,.35))}
+.face span{
+  font-family:'Baloo 2',cursive;font-weight:700;
+  font-size:clamp(11px,3vw,15px);color:var(--navy);
+}
+
+/* breathing cloud - slow, no flashing */
+.breath-stage{
+  flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
+  width:min(66vw,320px);height:min(66vw,320px);
+}
+.breath-cloud{
+  width:36%;height:36%;
+  transition:transform 4s ease-in-out, opacity 4s ease-in-out;
+  transform:scale(1);
+}
+.breath-cloud.inhale{transform:scale(2.5)}
+.breath-cloud svg{width:100%;height:auto}
+
+.breath-dots{display:flex;gap:9px}
+.bdot{
+  width:clamp(15px,4vw,24px);height:clamp(15px,4vw,24px);
+  border-radius:50%;
+  background:rgba(255,255,255,.35);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.7);
+  transition:background .6s ease,box-shadow .6s ease;
+}
+.bdot.on{
+  background:linear-gradient(150deg,var(--gold-light),var(--gold));
+  box-shadow:inset 0 0 0 2px #fff,0 0 14px rgba(232,183,90,.8);
+}
+
+/* star tapping */
+.star-row{display:flex;flex-wrap:wrap;gap:clamp(8px,3vw,22px);justify-content:center;max-width:94%}
+.cstar{
+  width:clamp(46px,13vw,86px);
+  border:0;background:none;padding:0;cursor:pointer;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s ease;
+}
+.cstar svg{width:100%;height:auto;opacity:.42;filter:drop-shadow(0 4px 8px rgba(9,60,70,.35));transition:opacity .4s ease}
+.cstar.lit svg{opacity:1}
+.cstar.lit{transform:scale(1.1)}
+.cstar:focus-visible{outline:4px solid #fff;outline-offset:4px;border-radius:14px}
+
+/* activity chooser */
+.acts{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(clamp(96px,25vw,150px),1fr));
+  gap:clamp(7px,2vw,14px);
+  width:min(94vw,620px);
+}
+.act{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:clamp(9px,2.4vw,15px) 8px;
+  border:0;border-radius:20px;cursor:pointer;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 4px 0 rgba(11,90,98,.5),0 9px 18px rgba(8,50,60,.28),inset 0 0 0 2.5px var(--gold);
+  transition:transform .16s ease;
+}
+.act:active{transform:translateY(3px)}
+.act:focus-visible{outline:4px solid #fff;outline-offset:3px}
+.act .act-ico{font-size:clamp(21px,6vw,32px);line-height:1}
+.act .act-name{
+  font-family:'Baloo 2',cursive;font-weight:700;
+  font-size:clamp(12px,3.1vw,16px);color:var(--navy);line-height:1.15;
+}
+
+/* glitter jar */
+#glitter{
+  width:min(62vw,280px);height:min(62vw,280px);max-height:46vh;
+  border-radius:26% 26% 18% 18%/16%;
+  background:linear-gradient(180deg,rgba(190,235,245,.65),rgba(90,175,205,.75));
+  box-shadow:inset 0 0 0 4px var(--gold),inset 0 6px 20px rgba(255,255,255,.5),0 8px 20px rgba(9,60,70,.35);
+  cursor:pointer;touch-action:manipulation;
+}
+
+/* free drawing */
+#doodle{
+  width:min(92vw,520px);height:min(56vh,380px);
+  border-radius:20px;background:#fff;
+  box-shadow:inset 0 0 0 3px var(--gold),0 8px 20px rgba(9,60,70,.32);
+  touch-action:none;cursor:crosshair;
+}
+.pens{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.pen{
+  width:clamp(28px,7vw,40px);height:clamp(28px,7vw,40px);
+  border:0;border-radius:50%;cursor:pointer;
+  box-shadow:0 3px 8px rgba(9,60,70,.35),inset 0 0 0 2.5px rgba(255,255,255,.9);
+}
+.pen.on{box-shadow:0 3px 8px rgba(9,60,70,.35),inset 0 0 0 3px #fff,0 0 0 3px var(--gold)}
+
+/* soundscape buttons */
+.sounds{display:flex;flex-wrap:wrap;gap:clamp(7px,2.4vw,14px);justify-content:center}
+.snd{
+  padding:clamp(9px,2.4vw,14px) clamp(15px,4vw,26px);
+  border:0;border-radius:999px;cursor:pointer;
+  font-family:'Baloo 2',cursive;font-weight:700;
+  font-size:clamp(13px,3.4vw,18px);color:var(--navy);
+  background:rgba(255,255,255,.9);
+  box-shadow:0 4px 0 rgba(11,90,98,.45),inset 0 0 0 2.5px var(--gold);
+}
+.snd.on{background:linear-gradient(165deg,var(--gold-light),var(--gold))}
+
+/* sticker shelf */
+.stickers{display:flex;flex-wrap:wrap;gap:clamp(7px,2.4vw,14px);justify-content:center;max-width:94%}
+.sticker{
+  width:clamp(52px,14vw,92px);
+  opacity:.28;filter:grayscale(1);
+  transition:opacity .5s ease,filter .5s ease,transform .5s cubic-bezier(.34,1.56,.64,1);
+}
+.sticker.have{opacity:1;filter:none}
+.sticker.fresh{transform:scale(1.18)}
+.sticker svg{width:100%;height:auto;filter:drop-shadow(0 4px 9px rgba(9,60,70,.35))}
+
 /* ---------- crystal garden ---------- */
 
 .garden{
@@ -884,7 +1094,7 @@ body{
       <img class="ciela" id="ciela" src="cielaBust.png" alt="Ciela">
       <span class="speaker" aria-hidden="true">&#128266;</span>
     </button>
-    <img class="pup" id="chispa" src="Chispa-head-icon-250.png" alt="">
+    <img class="pup" id="chispa" src="chispa-content.png" alt="">
   </div>
 </div>
 
@@ -986,6 +1196,52 @@ body{
 
   /* Number Stepping Stones. Sequences are fixed so a parent can see
      exactly which ones a child has managed. */
+  /* ---------- Calm-Down Clouds ---------- */
+
+  var FEELINGS = [
+    { key:'angry',      name:'Angry',      brow:'M22 30 L40 38',  brow2:'M78 30 L60 38', mouth:'M32 74 Q50 62 68 74', tint:'#F2A08E' },
+    { key:'sad',        name:'Sad',        brow:'M22 34 L40 30',  brow2:'M78 34 L60 30', mouth:'M32 76 Q50 62 68 76', tint:'#9FC2E8' },
+    { key:'worried',    name:'Worried',    brow:'M22 32 L40 28',  brow2:'M78 32 L60 28', mouth:'M34 72 Q50 78 66 70', tint:'#C7B6E6' },
+    { key:'frustrated', name:'Frustrated', brow:'M22 28 L40 34',  brow2:'M78 28 L60 34', mouth:'M32 72 L68 72',       tint:'#F0C27B' },
+    { key:'excited',    name:'Excited',    brow:'M22 28 L40 24',  brow2:'M78 28 L60 24', mouth:'M30 66 Q50 86 70 66',  tint:'#9BE0C0' }
+  ];
+
+  var STICKERS = [
+    { key:'cloud',   name:'Calm Cloud' },
+    { key:'sun',     name:'Smiling Sun' },
+    { key:'rainbow', name:'Gentle Rainbow' },
+    { key:'drop',    name:'Sparkling Raindrop' },
+    { key:'star',    name:'Golden Star' },
+    { key:'moon',    name:'Peaceful Moon' }
+  ];
+
+  /* Poses for Stretch Like Ciela. Held slowly, three in a row. */
+  var STRETCHES = [
+    { file:'ciela-reach.png',      say:'Reach up as tall as you can.' },
+    { file:'ciela-side-left.png',  say:'Lean gently to one side.' },
+    { file:'ciela-side-right.png', say:'Now lean to the other side.' },
+    { file:'ciela-bend.png',       say:'Bend forward and let your arms hang.' },
+    { file:'ciela-open.png',       say:'Open your arms out wide.' }
+  ];
+
+  /* Comfort items for Chispa's quiet corner */
+  var COSY = [
+    { key:'pillow',  file:'cosy-pillow.png',  name:'pillow',  w:0.30, at:[34,58] },
+    { key:'blanket', file:'cosy-blanket.png', name:'blanket', w:0.30, at:[58,66] },
+    { key:'toy',     file:'cosy-toy.png',     name:'soft toy',w:0.20, at:[45,44] }
+  ];
+
+  var CALM_ACTS = [
+    { key:'stretch', ico:'\uD83E\uDD38', name:'Stretch Like Ciela' },
+    { key:'corner',  ico:'\uD83D\uDECF\uFE0F', name:"Chispa's Quiet Corner" },
+    { key:'stars',  ico:'\u2b50', name:'Count Five Stars' },
+    { key:'jar',    ico:'\u2728', name:'Shake and Settle' },
+    { key:'draw',   ico:'\uD83C\uDFA8', name:'Draw the Feeling' },
+    { key:'sounds', ico:'\uD83C\uDF27\uFE0F', name:'Peaceful Sounds' },
+    { key:'five',   ico:'\uD83D\uDC40', name:'Name Five Things' },
+    { key:'help',   ico:'\uD83E\uDD1D', name:'Ask for Help' }
+  ];
+
   var CRYSTAL_COLOURS = [
     { key:'blue',   name:'blue',   hi:'#BFE9FF', mid:'#4EA8E8', low:'#1F5FA8' },
     { key:'purple', name:'purple', hi:'#E6D2FF', mid:'#9B6BE0', low:'#5B2F9E' },
@@ -1219,6 +1475,8 @@ body{
     for(i = 1; i <= 6; i++) loadClip('cheer-' + i, 'cheer-' + i);
     loadClip('win', 'win');
     loadClip('stones-go', 'stones-go');
+    ['calm-how','calm-slow','calm-in','calm-out','calm-five','calm-what','calm-help','calm-end']
+      .forEach(function(k){ loadClip(k, k); });
     for(i = 1; i <= 10; i++) loadClip('num-' + i, 'num-' + i);
     for(i = 1; i <= 4; i++) loadClip('yay-' + i, 'yay-' + i);
     for(i = 1; i <= 3; i++) loadClip('retry-' + i, 'retry-' + i);
@@ -1818,11 +2076,19 @@ body{
        round engine, so it is marked custom and starts itself. */
     memory: {
       label: "Chispa's Cards",
-      icon: 'Chispa-head-icon-250.png',
+      icon: 'chispa-excited.png',
       done: 'You found every pair!',
       custom: true,
       pairs: 10,
       start: function(){ buildDeck(this.pairs); }
+    },
+
+    calm: {
+      label: 'Calm-Down Clouds',
+      icon: 'crystal-sky-lantern-transparent.png',
+      done: 'You gave your body time to slow down.',
+      custom: true,
+      start: function(){ startCalm(); }
     },
 
     crystals: {
@@ -1973,7 +2239,7 @@ body{
     var back = document.createElement('span');
     back.className = 'card-face card-back';
     var img = document.createElement('img');
-    img.src = 'Chispa-head-icon-250.png';
+    img.src = 'chispa-curious.png';
     img.alt = '';
     img.addEventListener('error', function(){
       var paw = document.createElement('span');
@@ -2138,6 +2404,703 @@ body{
       st.busy = false;
       st.deck.classList.remove('locked');
     }, 1100);
+  }
+
+  /* ==========================================================
+     Calm-Down Clouds
+
+     Deliberately slow. No timer, no score, no wrong answer, and
+     nothing here is stored about how a child said they felt.
+     ========================================================== */
+
+  var calmState = null;
+  var calmNoise = null;
+
+  function faceSVG(f){
+    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<circle cx="50" cy="50" r="44" fill="' + f.tint + '" stroke="#E8B75A" stroke-width="4"/>' +
+      '<circle cx="35" cy="48" r="5.5" fill="#2C4450"/><circle cx="65" cy="48" r="5.5" fill="#2C4450"/>' +
+      '<g stroke="#2C4450" stroke-width="4.5" stroke-linecap="round" fill="none">' +
+      '<path d="' + f.brow + '"/><path d="' + f.brow2 + '"/><path d="' + f.mouth + '"/>' +
+      '</g></svg>';
+  }
+
+  function cloudSVG(storm){
+    var body = storm ? '#8FA3AE' : '#FFFFFF';
+    var edge = storm ? '#6B7C86' : '#CFEDF1';
+    return '<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<g fill="' + body + '" stroke="' + edge + '" stroke-width="3">' +
+      '<circle cx="38" cy="46" r="22"/><circle cx="62" cy="36" r="26"/>' +
+      '<circle cx="86" cy="48" r="20"/><rect x="34" y="46" width="56" height="22" rx="11"/>' +
+      '</g></svg>';
+  }
+
+  function starSVG(){
+    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<path d="M50 8 L62 38 L94 41 L69 61 L78 92 L50 74 L22 92 L31 61 L6 41 L38 38 Z" ' +
+      'fill="#F5CE3F" stroke="#E8B75A" stroke-width="4" stroke-linejoin="round"/></svg>';
+  }
+
+  function stickerSVG(key){
+    var open = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">';
+    var art = {
+      cloud:'<g fill="#FFFFFF" stroke="#7FC7DA" stroke-width="4"><circle cx="36" cy="56" r="18"/>'+
+            '<circle cx="56" cy="46" r="22"/><circle cx="74" cy="58" r="15"/>'+
+            '<rect x="32" y="56" width="46" height="18" rx="9"/></g>',
+      sun:'<g><circle cx="50" cy="50" r="26" fill="#F5CE3F" stroke="#E8B75A" stroke-width="4"/>'+
+          '<g stroke="#E8B75A" stroke-width="5" stroke-linecap="round">'+
+          '<path d="M50 6v12M50 82v12M6 50h12M82 50h12M19 19l9 9M72 72l9 9M81 19l-9 9M28 72l-9 9"/></g>'+
+          '<circle cx="41" cy="47" r="3.5" fill="#8A6A16"/><circle cx="59" cy="47" r="3.5" fill="#8A6A16"/>'+
+          '<path d="M40 58 Q50 68 60 58" stroke="#8A6A16" stroke-width="4" fill="none" stroke-linecap="round"/></g>',
+      rainbow:'<g fill="none" stroke-width="8" stroke-linecap="round">'+
+          '<path d="M14 76 A36 36 0 0 1 86 76" stroke="#E4483C"/>'+
+          '<path d="M26 76 A24 24 0 0 1 74 76" stroke="#F5CE3F"/>'+
+          '<path d="M38 76 A12 12 0 0 1 62 76" stroke="#4CB963"/></g>',
+      drop:'<path d="M50 10 C68 40 78 52 78 64 A28 28 0 0 1 22 64 C22 52 32 40 50 10 Z" '+
+           'fill="#7FC7DA" stroke="#3C8BE4" stroke-width="4"/>'+
+           '<circle cx="40" cy="62" r="6" fill="rgba(255,255,255,.75)"/>',
+      star:'<path d="M50 8 L62 38 L94 41 L69 61 L78 92 L50 74 L22 92 L31 61 L6 41 L38 38 Z" '+
+           'fill="#F5CE3F" stroke="#E8B75A" stroke-width="4" stroke-linejoin="round"/>',
+      moon:'<path d="M62 12 A40 40 0 1 0 62 88 A32 32 0 0 1 62 12 Z" fill="#FBE39B" '+
+           'stroke="#E8B75A" stroke-width="4"/>'+
+           '<circle cx="46" cy="40" r="3.5" fill="#B08B2E"/><circle cx="46" cy="60" r="3.5" fill="#B08B2E"/>'+
+           '<path d="M40 50 Q46 56 52 50" stroke="#B08B2E" stroke-width="3.5" fill="none" stroke-linecap="round"/>'
+    }[key] || '';
+    return open + art + '</svg>';
+  }
+
+  function haveStickers(){
+    var v = progress.stickers;
+    return (v && typeof v === 'object') ? v : {};
+  }
+
+  function awardSticker(){
+    var have = haveStickers();
+    var left = STICKERS.filter(function(t){ return !have[t.key]; });
+    if(!left.length) return null;
+    var pick = left[Math.floor(Math.random() * left.length)];
+    have[pick.key] = true;
+    progress.stickers = have;
+    saveProgress();
+    return pick;
+  }
+
+  function calmSay(text){
+    var el = calmState && calmState.say;
+    if(el) el.textContent = text;
+  }
+
+  function calmScreen(){
+    field.innerHTML = '';
+    prompt.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'calm';
+    var say = document.createElement('p');
+    say.className = 'calm-say';
+    box.appendChild(say);
+    field.appendChild(box);
+    if(calmState){ calmState.box = box; calmState.say = say; }
+    return box;
+  }
+
+  function startCalm(){
+    stopCalmNoise();
+    calmState = { breaths:0 };
+    buildGems(gemRow, 0);
+    askFeeling();
+  }
+
+  /* 1 - name the feeling. Nothing here is recorded. */
+  function askFeeling(){
+    var box = calmScreen();
+    calmSay('How are you feeling?');
+    playClip('calm-how');
+
+    var row = document.createElement('div');
+    row.className = 'faces';
+    FEELINGS.forEach(function(f){
+      var b = document.createElement('button');
+      b.className = 'face'; b.type = 'button';
+      b.innerHTML = faceSVG(f) + '<span>' + f.name + '</span>';
+      b.setAttribute('aria-label', f.name);
+      b.addEventListener('click', function(){
+        calmState.feeling = f;
+        beginBreathing();
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+  }
+
+  /* 2 - five slow breaths */
+  function beginBreathing(){
+    var box = calmScreen();
+    calmSay('Big feelings are okay. Let us slow down together.');
+    playClip('calm-slow');
+
+    var stage = document.createElement('div');
+    stage.className = 'breath-stage';
+    var cloud = document.createElement('div');
+    cloud.className = 'breath-cloud';
+    cloud.innerHTML = cloudSVG(true);
+    stage.appendChild(cloud);
+
+    var dots = document.createElement('div');
+    dots.className = 'breath-dots';
+    for(var i = 0; i < 5; i++){
+      var d = document.createElement('span');
+      d.className = 'bdot';
+      dots.appendChild(d);
+    }
+
+    box.appendChild(stage);
+    box.appendChild(dots);
+
+    chispaFace('rest');
+    calmState.cloud = cloud;
+    calmState.dots = dots;
+    calmState.breaths = 0;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var IN = reduce ? 1200 : 4000, OUT = reduce ? 1200 : 4000;
+
+    setTimeout(function breathe(){
+      if(!calmState || calmState.stopped) return;
+      calmSay('Breathe in while the cloud grows.');
+      playClip('calm-in');
+      cloud.classList.add('inhale');
+
+      setTimeout(function(){
+        if(!calmState || calmState.stopped) return;
+        calmSay('Now breathe out while it becomes smaller.');
+        playClip('calm-out');
+        cloud.classList.remove('inhale');
+
+        setTimeout(function(){
+          if(!calmState || calmState.stopped) return;
+          calmState.breaths++;
+          var lit = dots.children[calmState.breaths - 1];
+          if(lit) lit.classList.add('on');
+          if(calmState.breaths >= 5){
+            calmSay('We took five slow breaths!');
+            playClip('calm-five');
+            react('cheer');
+            setTimeout(chooseActivity, 2600);
+          }else{
+            breathe();
+          }
+        }, OUT);
+      }, IN);
+    }, 1800);
+  }
+
+  /* 3 - pick something calming */
+  function chooseActivity(){
+    var box = calmScreen();
+    calmSay('Wonderful! Now, what could help us feel calmer?');
+    playClip('calm-what');
+
+    var grid = document.createElement('div');
+    grid.className = 'acts';
+    CALM_ACTS.forEach(function(a){
+      var b = document.createElement('button');
+      b.className = 'act'; b.type = 'button';
+      b.innerHTML = '<span class="act-ico">' + a.ico + '</span>' +
+                    '<span class="act-name">' + a.name + '</span>';
+      b.addEventListener('click', function(){ runActivity(a.key); });
+      grid.appendChild(b);
+    });
+    box.appendChild(grid);
+  }
+
+  function calmDoneButton(box, label){
+    var b = document.createElement('button');
+    b.className = 'go';
+    b.type = 'button';
+    b.textContent = label || 'All done';
+    b.addEventListener('click', finishCalm);
+    box.appendChild(b);
+  }
+
+  function runActivity(key){
+    stopCalmNoise();
+    var box = calmScreen();
+
+    if(key === 'corner'){
+      calmSay("Make Chispa a cosy corner. Drag each thing onto the rug.");
+      var scene = document.createElement('div');
+      scene.className = 'corner';
+      var tray = document.createElement('div');
+      tray.className = 'tray';
+      var placed = 0;
+
+      function sceneBox(){ return scene.getBoundingClientRect(); }
+
+      function makePiece(item, xPct, yPct){
+        var img = document.createElement('img');
+        img.className = 'cosy pop';
+        img.src = item.file;
+        img.alt = item.name;
+        img.style.left = xPct + '%';
+        img.style.top = yPct + '%';
+        img.style.setProperty('--cw', Math.round(sceneBox().width * item.w) + 'px');
+        img.addEventListener('error', function(){ img.remove(); });
+
+        var dragging = false, offX = 0, offY = 0;
+        img.addEventListener('pointerdown', function(e){
+          dragging = true;
+          img.setPointerCapture(e.pointerId);
+          var b = sceneBox(), r = img.getBoundingClientRect();
+          offX = e.clientX - (r.left + r.width / 2);
+          offY = e.clientY - (r.top + r.height / 2);
+          e.preventDefault();
+        });
+        img.addEventListener('pointermove', function(e){
+          if(!dragging) return;
+          var b = sceneBox();
+          /* keep it on the rug rather than floating off into the sky */
+          var x = ((e.clientX - offX - b.left) / b.width) * 100;
+          var y = ((e.clientY - offY - b.top) / b.height) * 100;
+          img.style.left = Math.max(10, Math.min(80, x)) + '%';
+          img.style.top  = Math.max(40, Math.min(88, y)) + '%';
+        });
+        function drop(){ dragging = false; }
+        img.addEventListener('pointerup', drop);
+        img.addEventListener('pointercancel', drop);
+
+        scene.appendChild(img);
+      }
+
+      COSY.forEach(function(item){
+        var b = document.createElement('button');
+        b.className = 'tray-item';
+        b.type = 'button';
+        b.setAttribute('aria-label', 'add the ' + item.name);
+        var thumb = document.createElement('img');
+        thumb.src = item.file;
+        thumb.alt = '';
+        thumb.addEventListener('error', function(){ b.textContent = item.name; });
+        b.appendChild(thumb);
+        b.addEventListener('click', function(){
+          if(b.classList.contains('done')) return;
+          b.classList.add('done');
+          makePiece(item, item.at[0], item.at[1]);
+          chime();
+          placed++;
+          if(placed >= COSY.length){
+            calmSay('Chispa has somewhere soft to rest. You can move things around.');
+            react('cheer');
+            calmDoneButton(box);
+          }else{
+            calmSay('Lovely. What else should Chispa have?');
+          }
+        });
+        tray.appendChild(b);
+      });
+
+      box.appendChild(scene);
+      box.appendChild(tray);
+      return;
+    }
+
+    if(key === 'stretch'){
+      calmSay('Copy Ciela. Hold each stretch slowly.');
+      var stage = document.createElement('div');
+      stage.className = 'stretch-stage';
+      var poseImg = document.createElement('img');
+      poseImg.alt = '';
+      poseImg.addEventListener('error', function(){ poseImg.style.visibility = 'hidden'; });
+      stage.appendChild(poseImg);
+
+      var ring = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      ring.setAttribute('class','hold-ring');
+      ring.setAttribute('viewBox','0 0 40 40');
+      ring.innerHTML =
+        '<circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="5"/>' +
+        '<circle cx="20" cy="20" r="16" fill="none" stroke="#E8B75A" stroke-width="5" ' +
+        'stroke-linecap="round" transform="rotate(-90 20 20)" ' +
+        'stroke-dasharray="100.5" stroke-dashoffset="100.5"/>';
+
+      box.appendChild(stage);
+      box.appendChild(ring);
+
+      var picked = shuffle(STRETCHES.slice()).slice(0, 3);
+      var idx = 0;
+      var arc = ring.querySelectorAll('circle')[1];
+      var reduceS = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var HOLD = reduceS ? 2200 : 6000;
+
+      (function doPose(){
+        if(!calmState || calmState.stopped) return;
+        var pose = picked[idx];
+        poseImg.classList.add('swap');
+        setTimeout(function(){
+          if(!calmState || calmState.stopped) return;
+          poseImg.src = pose.file;
+          poseImg.style.visibility = '';
+          poseImg.classList.remove('swap');
+          calmSay(pose.say);
+          playClip('num-' + (idx + 1));
+        }, 380);
+
+        var t0 = Date.now();
+        var timer = setInterval(function(){
+          if(!calmState || calmState.stopped){ clearInterval(timer); return; }
+          var k = Math.min(1, (Date.now() - t0) / HOLD);
+          arc.setAttribute('stroke-dashoffset', (100.5 * (1 - k)).toFixed(1));
+          if(k >= 1){
+            clearInterval(timer);
+            idx++;
+            if(idx >= picked.length){
+              poseImg.src = 'ciela-cheer.png';
+              calmSay('Three good stretches.');
+              react('cheer');
+              calmDoneButton(box);
+            }else{
+              arc.setAttribute('stroke-dashoffset', 100.5);
+              doPose();
+            }
+          }
+        }, 90);
+      })();
+      return;
+    }
+
+    if(key === 'stars'){
+      calmSay('Tap each star slowly.');
+      var row = document.createElement('div');
+      row.className = 'star-row';
+      var lit = 0;
+      for(var i = 0; i < 5; i++){
+        (function(){
+          var b = document.createElement('button');
+          b.className = 'cstar'; b.type = 'button';
+          b.innerHTML = starSVG();
+          b.setAttribute('aria-label', 'star');
+          b.addEventListener('click', function(){
+            if(b.classList.contains('lit')) return;
+            b.classList.add('lit');
+            lit++;
+            playClip('num-' + lit);
+            if(lit >= 5) setTimeout(function(){ calmSay('Five calm stars.'); }, 700);
+          });
+          row.appendChild(b);
+        })();
+      }
+      box.appendChild(row);
+      calmDoneButton(box);
+      return;
+    }
+
+    if(key === 'jar'){
+      calmSay('Shake the jar, then watch the glitter settle.');
+      var cv = document.createElement('canvas');
+      cv.id = 'glitter';
+      box.appendChild(cv);
+      calmDoneButton(box);
+      startGlitter(cv);
+      return;
+    }
+
+    if(key === 'draw'){
+      calmSay('Draw however you feel.');
+      var pens = document.createElement('div');
+      pens.className = 'pens';
+      var dv = document.createElement('canvas');
+      dv.id = 'doodle';
+      box.appendChild(dv);
+      box.appendChild(pens);
+      calmDoneButton(box);
+      startDoodle(dv, pens);
+      return;
+    }
+
+    if(key === 'sounds'){
+      calmSay('Choose a peaceful sound.');
+      var wrap = document.createElement('div');
+      wrap.className = 'sounds';
+      [['rain','Rain'],['waterfall','Waterfall'],['wind','Soft wind'],['chimes','Wind chimes']]
+      .forEach(function(pair){
+        var b = document.createElement('button');
+        b.className = 'snd'; b.type = 'button';
+        b.textContent = pair[1];
+        b.addEventListener('click', function(){
+          var on = b.classList.contains('on');
+          wrap.querySelectorAll('.snd').forEach(function(o){ o.classList.remove('on'); });
+          stopCalmNoise();
+          if(!on){ b.classList.add('on'); startCalmNoise(pair[0]); }
+        });
+        wrap.appendChild(b);
+      });
+      box.appendChild(wrap);
+      calmDoneButton(box);
+      return;
+    }
+
+    if(key === 'five'){
+      var things = ['something blue','something soft','something round',
+                    'something you like','something that makes a sound'];
+      var at = 0;
+      calmSay('Can you find ' + things[0] + '?');
+      var dots2 = document.createElement('div');
+      dots2.className = 'breath-dots';
+      for(var k = 0; k < 5; k++){
+        var d2 = document.createElement('span');
+        d2.className = 'bdot';
+        dots2.appendChild(d2);
+      }
+      var found = document.createElement('button');
+      found.className = 'go';
+      found.type = 'button';
+      found.textContent = 'I found it';
+      found.addEventListener('click', function(){
+        dots2.children[at].classList.add('on');
+        playClip('num-' + (at + 1));
+        at++;
+        if(at >= things.length){
+          calmSay('You found five things.');
+          found.remove();
+          calmDoneButton(box);
+        }else{
+          calmSay('Can you find ' + things[at] + '?');
+        }
+      });
+      box.appendChild(dots2);
+      box.appendChild(found);
+      return;
+    }
+
+    /* Ask for help - hands off to a real person and stores nothing */
+    calmSay('It is always okay to ask a trusted grown-up for help.');
+    playClip('calm-help');
+    var note = document.createElement('p');
+    note.className = 'calm-say';
+    note.textContent = 'Go and find your grown-up. Ciela and Chispa will wait right here.';
+    box.appendChild(note);
+    calmDoneButton(box, 'I talked to them');
+  }
+
+  function finishCalm(){
+    stopCalmNoise();
+    var box = calmScreen();
+    calmSay('Our feelings may not go away right away, but we can help our bodies feel calm.');
+    playClip('calm-end');
+    react('cheer');
+
+    var fresh = awardSticker();
+    var have = haveStickers();
+
+    var shelf = document.createElement('div');
+    shelf.className = 'stickers';
+    STICKERS.forEach(function(t){
+      var d = document.createElement('div');
+      d.className = 'sticker' + (have[t.key] ? ' have' : '') +
+                    (fresh && fresh.key === t.key ? ' fresh' : '');
+      d.innerHTML = stickerSVG(t.key);
+      d.title = have[t.key] ? t.name : 'Not found yet';
+      shelf.appendChild(d);
+    });
+    box.appendChild(shelf);
+
+    if(fresh){
+      var line = document.createElement('p');
+      line.className = 'calm-say';
+      line.textContent = 'You earned the ' + fresh.name + '.';
+      box.appendChild(line);
+    }
+
+    var again = document.createElement('button');
+    again.className = 'go ghost';
+    again.type = 'button';
+    again.textContent = 'Try another calming activity';
+    again.addEventListener('click', chooseActivity);
+    box.appendChild(again);
+
+    var out = document.createElement('button');
+    out.className = 'go';
+    out.type = 'button';
+    out.textContent = 'All finished';
+    out.addEventListener('click', goHome);
+    box.appendChild(out);
+  }
+
+  /* ---------- glitter jar ---------- */
+  function startGlitter(cv){
+    var ctx = cv.getContext('2d');
+    var bits = [], raf = null;
+
+    function fit(){
+      var r = cv.getBoundingClientRect();
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      cv.width = Math.max(80, r.width * dpr);
+      cv.height = Math.max(80, r.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return r;
+    }
+    var box = fit();
+
+    for(var i = 0; i < 130; i++){
+      bits.push({ x:Math.random() * box.width, y:Math.random() * box.height,
+                  vx:0, vy:0, r:1 + Math.random() * 2.6,
+                  h:['#FFFFFF','#FBE39B','#BFF0F4','#E8B75A','#C7B6E6'][i % 5] });
+    }
+
+    function shake(){
+      bits.forEach(function(b){
+        b.vx = (Math.random() - 0.5) * 4.5;
+        b.vy = (Math.random() - 1) * 4.5;
+      });
+    }
+
+    function tick(){
+      var r = cv.getBoundingClientRect();
+      ctx.clearRect(0, 0, r.width, r.height);
+      bits.forEach(function(b){
+        b.vy += 0.018;                  /* very slow fall */
+        b.vx *= 0.982; b.vy *= 0.985;
+        b.x += b.vx; b.y += b.vy;
+        if(b.x < 2){ b.x = 2; b.vx *= -0.4; }
+        if(b.x > r.width - 2){ b.x = r.width - 2; b.vx *= -0.4; }
+        if(b.y > r.height - 3){ b.y = r.height - 3; b.vy *= -0.22; b.vx *= 0.86; }
+        ctx.globalAlpha = 0.85;
+        ctx.fillStyle = b.h;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 6.284); ctx.fill();
+      });
+      raf = requestAnimationFrame(tick);
+    }
+
+    cv.addEventListener('pointerdown', shake);
+    window.addEventListener('resize', fit);
+    shake(); tick();
+    if(calmState) calmState.stopGlitter = function(){ if(raf) cancelAnimationFrame(raf); };
+  }
+
+  /* ---------- free drawing ---------- */
+  function startDoodle(cv, pens){
+    var ctx = cv.getContext('2d');
+    var colours = ['#3C8BE4','#E4483C','#F5CE3F','#4CB963','#8B5FC9','#EC7BB0','#2C4450'];
+    var cur = colours[0], drawing = false;
+
+    function fit(){
+      var r = cv.getBoundingClientRect();
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      var snap = cv.width ? ctx.getImageData(0, 0, cv.width, cv.height) : null;
+      cv.width = Math.max(80, r.width * dpr);
+      cv.height = Math.max(80, r.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      if(snap) try{ ctx.putImageData(snap, 0, 0); }catch(e){}
+    }
+    fit();
+    window.addEventListener('resize', fit);
+
+    colours.forEach(function(c, i){
+      var b = document.createElement('button');
+      b.className = 'pen' + (i === 0 ? ' on' : '');
+      b.type = 'button';
+      b.style.background = c;
+      b.setAttribute('aria-label', 'colour');
+      b.addEventListener('click', function(){
+        cur = c;
+        pens.querySelectorAll('.pen').forEach(function(o){ o.classList.remove('on'); });
+        b.classList.add('on');
+      });
+      pens.appendChild(b);
+    });
+
+    var clear = document.createElement('button');
+    clear.className = 'pen';
+    clear.type = 'button';
+    clear.style.background = '#fff';
+    clear.textContent = '\u21ba';
+    clear.setAttribute('aria-label', 'start again');
+    clear.addEventListener('click', function(){
+      var r = cv.getBoundingClientRect();
+      ctx.clearRect(0, 0, r.width, r.height);
+    });
+    pens.appendChild(clear);
+
+    function pos(e){
+      var r = cv.getBoundingClientRect();
+      return { x:e.clientX - r.left, y:e.clientY - r.top };
+    }
+    cv.addEventListener('pointerdown', function(e){
+      drawing = true;
+      cv.setPointerCapture(e.pointerId);
+      var p = pos(e);
+      ctx.strokeStyle = cur; ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y);
+    });
+    cv.addEventListener('pointermove', function(e){
+      if(!drawing) return;
+      var p = pos(e);
+      ctx.lineTo(p.x, p.y); ctx.stroke();
+    });
+    cv.addEventListener('pointerup', function(){ drawing = false; });
+    cv.addEventListener('pointercancel', function(){ drawing = false; });
+  }
+
+  /* ---------- gentle soundscapes, synthesised so nothing extra loads ---------- */
+  function startCalmNoise(kind){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+
+      var len = audioCtx.sampleRate * 2;
+      var buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+      var d = buf.getChannelData(0);
+      var last = 0;
+      for(var i = 0; i < len; i++){
+        var white = Math.random() * 2 - 1;
+        last = (last + 0.02 * white) / 1.02;      /* brown-ish noise, soft */
+        d[i] = last * 3.2;
+      }
+      var src = audioCtx.createBufferSource();
+      src.buffer = buf; src.loop = true;
+
+      var filt = audioCtx.createBiquadFilter();
+      var gain = audioCtx.createGain();
+      gain.gain.value = 0;
+
+      if(kind === 'rain'){ filt.type = 'highpass'; filt.frequency.value = 900; }
+      else if(kind === 'waterfall'){ filt.type = 'lowpass'; filt.frequency.value = 1600; }
+      else if(kind === 'wind'){ filt.type = 'bandpass'; filt.frequency.value = 420; filt.Q.value = 0.7; }
+      else { filt.type = 'lowpass'; filt.frequency.value = 3000; }
+
+      src.connect(filt).connect(gain).connect(audioCtx.destination);
+      src.start();
+      gain.gain.linearRampToValueAtTime(kind === 'chimes' ? 0.05 : 0.12, audioCtx.currentTime + 1.5);
+
+      var chime = null;
+      if(kind === 'chimes'){
+        var notes = [523.25, 587.33, 698.46, 783.99, 880];
+        chime = setInterval(function(){
+          if(muted) return;
+          var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+          o.type = 'sine';
+          o.frequency.value = notes[Math.floor(Math.random() * notes.length)];
+          var t0 = audioCtx.currentTime;
+          g.gain.setValueAtTime(0.0001, t0);
+          g.gain.exponentialRampToValueAtTime(0.07, t0 + 0.05);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.4);
+          o.connect(g).connect(audioCtx.destination);
+          o.start(t0); o.stop(t0 + 2.5);
+        }, 2600);
+      }
+
+      calmNoise = { src:src, gain:gain, chime:chime };
+    }catch(e){ calmNoise = null; }
+  }
+
+  function stopCalmNoise(){
+    if(!calmNoise) return;
+    try{
+      if(calmNoise.chime) clearInterval(calmNoise.chime);
+      calmNoise.gain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+      var s = calmNoise.src;
+      setTimeout(function(){ try{ s.stop(); }catch(e){} }, 600);
+    }catch(e){}
+    calmNoise = null;
   }
 
   /* ==========================================================
@@ -2484,7 +3447,7 @@ body{
 
     var walker = document.createElement('img');
     walker.className = 'walker';
-    walker.src = 'cielaFull.png';
+    walker.src = 'ciela-idle.png';
     walker.alt = '';
     walker.style.setProperty('--walk', (sz.stone * 1.15).toFixed(0) + 'px');
     walker.addEventListener('error', function(){ walker.hidden = true; });
@@ -2804,7 +3767,37 @@ body{
     if(pair[0]) playClip(pair[0]);
   }
 
+  /* Chispa's face changes with what just happened, then drifts back
+     to his resting expression. */
+  var CHISPA_FACE = {
+    rest:    'chispa-content.png',
+    cheer:   ['chispa-giggle.png','chispa-excited.png','chispa-wink.png'],
+    nudge:   'chispa-curious.png'
+  };
+  var chispaTimer = null;
+
+  function chispaFace(mood){
+    if(!chispa || chispa.hidden) return;
+    var src;
+    if(mood === 'cheer'){
+      var pool = CHISPA_FACE.cheer;
+      src = pool[Math.floor(Math.random() * pool.length)];
+    }else if(mood === 'nudge'){
+      src = CHISPA_FACE.nudge;
+    }else{
+      src = CHISPA_FACE.rest;
+    }
+    chispa.src = src;
+    clearTimeout(chispaTimer);
+    if(mood !== 'rest'){
+      chispaTimer = setTimeout(function(){
+        chispa.src = CHISPA_FACE.rest;
+      }, mood === 'cheer' ? 2400 : 1600);
+    }
+  }
+
   function react(mood){
+    chispaFace(mood);
     [teacher, chispa].forEach(function(node, i){
       if(!node || node.hidden) return;
       node.classList.remove('cheer','nudge');
@@ -2928,6 +3921,7 @@ body{
   }
 
   function goHome(){
+    chispaFace('rest');
     deckState = null;
     bridgeState = null;
     levelVeil.hidden = true;
