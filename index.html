@@ -2616,6 +2616,22 @@ body{
   var calmNoise = null;
   var calmLook = false;   /* true while the pair are sitting in lotus */
 
+  /* Music belongs on the choosing screens. During an actual exercise it
+     competes with the breathing, the counting, or the rain, so it stops. */
+  function calmMusic(on){
+    if(muted) return;
+    if(on){
+      if(audioParked) return;
+      if(musicOk){
+        if(music.paused){ music.volume = 0; music.play().catch(function(){}); }
+        fade(music, gameVolume(), 900, false);
+      }
+    }else{
+      if(musicOk && !music.paused) fade(music, 0, 700, true);
+      if(titleOk && !titleMusic.paused) fade(titleMusic, 0, 700, true);
+    }
+  }
+
   var NORMAL_LOOK = { ciela:'cielaBust.png', chispa:'chispa-content.png' };
   var CALM_LOOK   = { ciela:'ciela-calm.png', chispa:'chispa-calm.png' };
 
@@ -2724,6 +2740,7 @@ body{
   /* 1 - name the feeling. Nothing here is recorded. */
   function askFeeling(){
     var box = calmScreen();
+    calmMusic(true);
     calmSay('How are you feeling?');
     playClip('calm-how');
 
@@ -2746,6 +2763,7 @@ body{
   /* 2 - breathe, or go straight to something to do */
   function offerPath(){
     var box = calmScreen();
+    calmMusic(true);
     calmSay('Big feelings are okay. What shall we do?');
     playClip('calm-slow');
 
@@ -2772,6 +2790,7 @@ body{
   /* 3 - five slow breaths */
   function beginBreathing(){
     var box = calmScreen();
+    calmMusic(false);
     calmSay('Big feelings are okay. Let us slow down together.');
     playClip('calm-slow');
 
@@ -2865,6 +2884,7 @@ body{
   /* 4 - pick something calming */
   function chooseActivity(){
     var box = calmScreen();
+    calmMusic(true);
     calmSay('Wonderful! Now, what could help us feel calmer?');
     playClip('calm-what');
 
@@ -2893,6 +2913,7 @@ body{
   function runActivity(key){
     stopCalmNoise();
     var box = calmScreen();
+    calmMusic(false);
 
     if(key === 'corner'){
       calmSay("Make Chispa a cosy corner. Drag each thing onto the rug.");
@@ -3157,6 +3178,7 @@ body{
   function finishCalm(){
     stopCalmNoise();
     var box = calmScreen();
+    calmMusic(true);
     calmSay('Our feelings may not go away right away, but we can help our bodies feel calm.');
     playClip('calm-end');
     react('cheer');
