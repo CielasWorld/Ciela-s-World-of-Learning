@@ -954,6 +954,29 @@ body{
   100%{transform:translateX(-50%) scaleY(1) scaleX(1)}
 }
 
+/* small-to-big direction marker under the stream */
+.flow-hint{
+  flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(6px,2vw,14px);
+  width:min(90%,520px);
+  font-family:'Nunito',sans-serif;font-weight:800;
+  font-size:clamp(10px,2.6vw,14px);
+  color:var(--navy);opacity:.75;letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.flow-line{
+  flex:1;height:3px;border-radius:2px;position:relative;
+  background:linear-gradient(90deg,rgba(21,51,73,.25),rgba(21,51,73,.6));
+}
+.flow-line::after{
+  content:'';position:absolute;right:-2px;top:50%;
+  width:0;height:0;transform:translateY(-50%);
+  border-left:9px solid rgba(21,51,73,.6);
+  border-top:6px solid transparent;
+  border-bottom:6px solid transparent;
+}
+
 /* ---------- word bridge ---------- */
 
 .bridge-wrap{
@@ -1361,23 +1384,28 @@ body{
 
   var STONE_LEVELS = [
     { id:'cloud', name:'Cloud Beginner', badge:'\u2601\uFE0F',
-      note:'Five stones, two already placed', given:2, decoys:1,
+      note:'Five stones, counting up by 1', given:2, decoys:1,
+      hint:'smallest first',
       puzzles:[
         { id:'1-5',  seq:runOf(1,1,5) }, { id:'2-6',  seq:runOf(2,1,5) },
         { id:'3-7',  seq:runOf(3,1,5) }, { id:'4-8',  seq:runOf(4,1,5) },
         { id:'5-9',  seq:runOf(5,1,5) }, { id:'6-10', seq:runOf(6,1,5) }
       ] },
     { id:'golden', name:'Golden Explorer', badge:'\u2728',
-      note:'Seven stones, none placed', given:0, decoys:2,
+      note:'Seven stones, counting up by 1', given:0, decoys:2,
+      hint:'smallest first',
       puzzles:[
         { id:'1-7',  seq:runOf(1,1,7) }, { id:'2-8',  seq:runOf(2,1,7) },
         { id:'3-9',  seq:runOf(3,1,7) }, { id:'4-10', seq:runOf(4,1,7) }
       ] },
     { id:'crystal', name:'Crystal Champion', badge:'\uD83D\uDC8E',
-      note:'Counting in steps', given:1, decoys:2,
+      note:'Counting in 2s, 3s, 5s and 10s', given:1, decoys:2,
+      hint:'smallest first',
       puzzles:[
-        { id:'twos',   seq:runOf(2,2,6) }, { id:'threes', seq:runOf(3,3,6) },
-        { id:'fives',  seq:runOf(5,5,6) }, { id:'tens',   seq:runOf(10,10,6) }
+        { id:'twos',   seq:runOf(2,2,6),   hint:'counting by 2s' },
+        { id:'threes', seq:runOf(3,3,6),   hint:'counting by 3s' },
+        { id:'fives',  seq:runOf(5,5,6),   hint:'counting by 5s' },
+        { id:'tens',   seq:runOf(10,10,6), hint:'counting by 10s' }
       ] }
   ];
 
@@ -3727,7 +3755,7 @@ body{
     var stone = Math.min((w * 0.88) / count - 8, h * 0.17, 78);
     var perRow = Math.min(tileCount, Math.max(4, Math.floor(w / 78)));
     var tile = Math.min((w * 0.9) / perRow - 10, h * 0.15, 70);
-    /* Ciela has to fit above the stones without pushing the tiles off screen */
+    /* Chispa has to fit above the stones without pushing the tiles off screen */
     var walk = Math.min(stone * 1.7, h * 0.26, 150);
     return { stone:Math.max(28, stone), tile:Math.max(32, tile), walk:Math.max(40, walk) };
   }
@@ -3745,7 +3773,8 @@ body{
     st.given = Math.min(st.lv.given, seq.length - 1);
 
     field.innerHTML = '';
-    prompt.innerHTML = '<span>Put the stones in order</span>';
+    var hint = puzzle.hint || st.lv.hint || 'smallest first';
+    prompt.innerHTML = '<span>Put the stones in order \u2014 <em>' + hint + '</em></span>';
 
     var wrap = document.createElement('div');
     wrap.className = 'stream-wrap';
@@ -3783,6 +3812,10 @@ body{
     walker.setAttribute('aria-hidden','true');
     stream.appendChild(walker);
 
+    var arrow = document.createElement('div');
+    arrow.className = 'flow-hint';
+    arrow.innerHTML = '<span>small</span><span class="flow-line"></span><span>big</span>';
+
     var row = document.createElement('div');
     row.className = 'tiles-row';
     pool.forEach(function(v){
@@ -3796,6 +3829,7 @@ body{
     });
 
     wrap.appendChild(stream);
+    wrap.appendChild(arrow);
     wrap.appendChild(row);
     field.appendChild(wrap);
 
@@ -3983,7 +4017,7 @@ body{
     st.given = given;
 
     field.innerHTML = '';
-    prompt.innerHTML = '<span>Build the bridge</span>';
+    prompt.innerHTML = '<span>Tap the letters in order</span>';
 
     var wrap = document.createElement('div');
     wrap.className = 'bridge-wrap';
