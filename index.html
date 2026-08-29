@@ -539,7 +539,11 @@ body{
 
 .corner{
   position:relative;
-  flex:1;min-height:0;width:100%;
+  flex:1 1 auto;
+  min-height:min(42vh,300px);
+  aspect-ratio:16/9;
+  width:auto;max-width:100%;
+  margin:0 auto;
   border-radius:20px;overflow:hidden;
   background-image:url('quiet-corner.jpg');
   background-size:cover;background-position:center bottom;
@@ -569,10 +573,10 @@ body{
   flex:0 0 auto;
   display:flex;gap:clamp(8px,3vw,20px);
   align-items:center;justify-content:center;
-  padding-top:4px;
+  padding-top:2px;
 }
 .tray-item{
-  width:clamp(52px,15vw,96px);
+  width:clamp(44px,11vw,78px);
   border:0;background:none;padding:0;cursor:pointer;
   transition:transform .2s ease,opacity .3s ease;
 }
@@ -2941,7 +2945,7 @@ body{
     calmMusic(false);
 
     if(key === 'corner'){
-      calmSay("Make Chispa a cosy corner. Drag each thing onto the rug.");
+      calmSay('Tap each thing to put it out, then drag it where you like.');
       var scene = document.createElement('div');
       scene.className = 'corner';
       var tray = document.createElement('div');
@@ -3006,7 +3010,7 @@ body{
             react('cheer');
             calmDoneButton(box);
           }else{
-            calmSay('Lovely. What else should Chispa have?');
+            calmSay('Lovely. Tap the next thing.');
           }
         });
         tray.appendChild(b);
