@@ -11,10 +11,25 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ciela's World">
 <link rel="apple-touch-icon" href="appIcon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
 <style>
+/* Fonts are served from this site, not from a third party. A children's
+   app should not make a request to anyone else's server on load. */
+@font-face{
+  font-family:'Baloo 2';
+  src:url('baloo-2.woff2') format('woff2');
+  font-weight:400 800;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Nunito';
+  src:url('nunito.woff2') format('woff2');
+  font-weight:400 900;
+  font-style:normal;
+  font-display:swap;
+}
+
 :root{
   --sky:#8FD8EA;
   --horizon:#F7E3B6;
@@ -923,7 +938,17 @@ body{
   pointer-events:none;
 }
 .walker[hidden]{display:none}
-.walker.hop{animation:hop .42s cubic-bezier(.34,1.56,.64,1)}
+.walker.leaping{animation:arc .46s cubic-bezier(.33,0,.67,1)}
+@keyframes arc{
+  0%{transform:translateX(-50%) translateY(0) rotate(0)}
+  45%{transform:translateX(-50%) translateY(-34px) rotate(-6deg)}
+  100%{transform:translateX(-50%) translateY(0) rotate(0)}
+}
+.walker.landed{animation:squish .28s ease-out}
+@keyframes squish{
+  0%{transform:translateX(-50%) scaleY(.86) scaleX(1.08)}
+  100%{transform:translateX(-50%) scaleY(1) scaleX(1)}
+}
 
 /* ---------- word bridge ---------- */
 
@@ -2302,7 +2327,7 @@ body{
     stones: {
       label: 'Stepping Stones',
       icon: 'stones-icon.png',
-      done: 'Ciela crossed the stream!',
+      done: 'Chispa crossed the stream!',
       custom: true,
       roundsPerGame: 4,
       start: function(){ openStonePicker(); }
@@ -3746,11 +3771,12 @@ body{
 
     var walker = document.createElement('img');
     walker.className = 'walker';
-    walker.src = 'ciela-idle.png';
+    walker.src = 'chispa-stand.png';
     walker.alt = '';
     walker.style.setProperty('--walk', sz.walk.toFixed(0) + 'px');
     stream.style.setProperty('--walkspace', (sz.walk * 1.05).toFixed(0) + 'px');
     walker.addEventListener('error', function(){ walker.hidden = true; });
+    walker.setAttribute('aria-hidden','true');
     stream.appendChild(walker);
 
     var row = document.createElement('div');
@@ -3772,6 +3798,27 @@ body{
     st.stream = stream; st.row = row; st.walker = walker;
     requestAnimationFrame(function(){ moveWalker(stream, walker, st.given); });
     setTimeout(function(){ playClip('stones-go'); }, 320);
+  }
+
+  /* Chispa gathers himself, springs across in mid-air, then lands. */
+  function leapWalker(stream, walker, slotIndex){
+    if(!walker || walker.hidden){ moveWalker(stream, walker, slotIndex); return; }
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){
+      moveWalker(stream, walker, slotIndex);
+      return;
+    }
+    walker.src = 'chispa-hop.png';
+    walker.classList.add('leaping');
+    moveWalker(stream, walker, slotIndex);
+    clearTimeout(walker._land);
+    walker._land = setTimeout(function(){
+      walker.src = 'chispa-stand.png';
+      walker.classList.remove('leaping');
+      walker.classList.remove('landed');
+      void walker.offsetWidth;
+      walker.classList.add('landed');
+    }, 460);
   }
 
   function moveWalker(stream, walker, slotIndex){
@@ -3805,12 +3852,7 @@ body{
     tile.classList.add('used');
     st.placed++;
 
-    moveWalker(stream, walker, st.given + st.placed);
-    if(walker && !walker.hidden){
-      walker.classList.remove('hop');
-      void walker.offsetWidth;
-      walker.classList.add('hop');
-    }
+    leapWalker(stream, walker, st.given + st.placed);
 
     if(st.given + st.placed < st.seq.length){
       chime();
