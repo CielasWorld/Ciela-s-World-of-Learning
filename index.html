@@ -3784,12 +3784,21 @@ body{
 
     var need = seq.slice(st.given);
     var span = Math.max(1, seq[1] - seq[0]);
+    var last = seq[seq.length - 1];
+
+    /* Every spare stone must be LARGER than the last one in the sequence.
+       Otherwise "smallest first" is a lie - a spare 2 would sit on the board
+       while the answer was 3. With all spares above the run, the smallest
+       stone left is the right one at every single step. They also skip the
+       natural next value, so a spare never looks like the pattern
+       continuing. */
     var extras = [];
     var guard = 0;
-    while(extras.length < st.lv.decoys && guard++ < 200){
-      var cand = seq[0] + Math.floor(Math.random() * (seq.length + 3)) * span
-                 + (Math.random() < 0.5 ? 1 : -1);
-      if(cand > 0 && seq.indexOf(cand) === -1 && extras.indexOf(cand) === -1) extras.push(cand);
+    while(extras.length < st.lv.decoys && guard++ < 300){
+      var cand = last + span + 1 + Math.floor(Math.random() * (span * 3 + 4));
+      if(cand !== last + span &&
+         seq.indexOf(cand) === -1 &&
+         extras.indexOf(cand) === -1) extras.push(cand);
     }
     var pool = shuffle(need.concat(extras));
     var sz = sizeStream(seq.length, pool.length);
