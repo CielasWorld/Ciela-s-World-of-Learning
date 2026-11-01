@@ -6,6 +6,7 @@ Version: 1.0.0 (versionCode 2)
 Price: USD $4.99 one-time, configured in Play Console. No ads, subscriptions, or in-app purchases.
 Audience: ages 3–7; review the "5 and under" and "6–8" target age groups.
 Category suggestion: educational game.
+Public support email (confirmed by owner): Eserenil10@gmail.com
 
 ## Completed evidence
 - Owner reports all 11 games worked on their phone with airplane mode on and Wi-Fi off.
@@ -26,7 +27,7 @@ CI debug keys are not stable across fresh runners. A replacement debug APK may n
 - Enroll in Play App Signing as part of the Play setup. Never upload the CI debug APK as the paid production release.
 - CI's AAB is unsigned; do not submit it as-is. Build/sign the release AAB in Android Studio using the private upload key.
 - Confirm app icon and splash branding; the generated Android template still needs branding review.
-- Provide a public support email chosen by the owner.
+- Public support email confirmed: Eserenil10@gmail.com. Enter it in Play Console's store listing contact details.
 - Finalize the privacy policy below with the owner, publish it as a standalone public HTML page, and include an offline-readable copy inside the app's grown-up area.
 - Complete Data safety after checking the merged release manifest and dependencies. The current app source uses localStorage and bundled media; no third-party analytics, ads, login, or remote API integration was found. Do not treat this preliminary source check as a complete privacy audit.
 - Complete ads declaration (No), app access (no login), target audience, Families declarations and content rating questionnaire. Let the questionnaire assign the rating.
@@ -35,6 +36,7 @@ CI debug keys are not stable across fresh runners. A replacement debug APK may n
 - Upload the signed AAB to a test track and review Google's pre-launch reports before requesting production.
 
 ## Listing draft
+Public support email: Eserenil10@gmail.com
 App title: Ciela's World of Learning
 Short description: Eleven gentle offline learning games for ages 3–7. No ads or subscriptions.
 Full description:
@@ -54,7 +56,7 @@ For grown-ups:
 USD $4.99 is the intended US purchase price; Google Play displays the applicable local price.
 
 ## Privacy policy draft — not ready for publication
-Publisher display name and public contact email must be confirmed before publication.
+Public contact email confirmed: Eserenil10@gmail.com. Publisher display name must still be confirmed before publication.
 
 Ciela's World of Learning is designed for children ages 3–7.
 The app's games and included audio/images are bundled with the installation and can be used offline.
@@ -63,10 +65,10 @@ Learning progress and game preferences are stored locally on the device. The app
 The release configuration disables Android cloud backup for app data.
 A grown-up can reset learning progress using the app's Start over control; clearing Android app storage or uninstalling removes remaining local app data.
 Purchases and distribution are handled by Google Play under Google's own terms and privacy practices. The app does not receive payment-card details.
-If a grown-up contacts support, the publisher receives the information they choose to send and should use it only to respond.
+A grown-up can contact support or ask privacy questions at Eserenil10@gmail.com. If a grown-up contacts support, the publisher receives the information they choose to send and should use it only to respond.
 This statement covers the Android app; it does not describe GitHub Pages hosting logs or independent Google services.
 
-Before publishing, confirm these statements against the final signed build and add the publisher name, support email, effective date, support-data retention/deletion handling, and policy change/contact information.
+Before publishing, confirm these statements against the final signed build and add the publisher name, effective date, support-data retention/deletion handling, and policy change/contact information.
 
 ## Official references checked November 1, 2026
 - Target API: https://support.google.com/googleplay/android-developer/answer/11926878
