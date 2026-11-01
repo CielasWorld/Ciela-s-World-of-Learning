@@ -1,0 +1,46 @@
+name: iOS simulator feasibility build
+
+on:
+  push:
+    branches: [ios-offline-development]
+    paths:
+      - 'ios-app/**'
+      - '.github/workflows/ios-simulator-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    if: github.ref == 'refs/heads/ios-offline-development'
+    runs-on: macos-26
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ios-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Apple tools
+        run: xcodebuild -version
+      - name: Install iOS dependencies
+        run: npm install
+      - name: Bundle offline game assets
+        run: npm run ios:prepare
+      - name: Create iOS project
+        run: npx cap add ios
+      - name: Sync offline assets
+        run: npm run ios:sync
+      - name: Compile simulator app without signing
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Upload simulator app
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cielas-World-iOS-SIMULATOR-ONLY
+          path: ios-app/build/Build/Products/Debug-iphonesimulator/App.app
+          if-no-files-found: error
+          retention-days: 14

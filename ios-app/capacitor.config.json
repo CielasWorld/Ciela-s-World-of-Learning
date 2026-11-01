@@ -1,0 +1,8 @@
+{
+  "appId": "org.cielasworld.learning",
+  "appName": "Ciela's World of Learning",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

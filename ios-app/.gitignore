@@ -1,0 +1,8 @@
+node_modules/
+www/
+ios/
+build/
+*.p12
+*.p8
+*.mobileprovision
+.env
