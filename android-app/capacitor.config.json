@@ -1,0 +1,11 @@
+{
+  "appId": "org.cielasworld.learning",
+  "appName": "Ciela's World of Learning",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
