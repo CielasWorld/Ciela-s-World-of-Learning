@@ -1,20 +1,20 @@
-# Ciela's World of Learning — offline Android build
-
-This folder prepares a native Android package from the existing static web app. The public GitHub Pages site and main branch are not modified.
-
-## Requirements
-Node.js 20+, Android Studio with Android SDK, Java 17 (or versions supported by the installed Capacitor release).
+# Ciela's World of Learning — Android
+Work only on `android-offline-development`. The public `main` branch now contains a coming-soon page; do not merge it into the Android branch or publish this branch as the website.
 
 ## Build
-From this directory:
+Requires Node.js 22+, Java 21, Android Studio 2025.2.1+ and Android SDK 36.
+From `android-app`:
+1. `npm install`
+2. `node scripts/prepare-web.mjs`
+3. `npx cap add android` (first time)
+4. `npm run android:sync`
+5. `npm run android:open`
 
-1. Run `npm install`.
-2. Run `node scripts/prepare-web.mjs`.
-3. Run `npx cap add android` (first time only).
-4. Run `npm run android:sync`.
-5. Run `npm run android:open`.
-6. In Android Studio, test in airplane mode, then generate a signed Android App Bundle for Google Play.
+The sync script sets version code 2 and disables Android cloud backup. Local progress stays on the device.
+When updating an existing Capacitor 7 native project, migrate or regenerate its native folder after backing up any local signing configuration. Do not delete upload keys.
 
-The web assets are copied into the APK/AAB, rather than loaded from the live website. Check that every game asset and media file is stored locally and that the app makes no required network requests. A successful build does not prove full offline functionality; test all games on a physical device with network disabled.
+GitHub Actions builds a debug APK and an **unsigned** release AAB. The unsigned AAB cannot be uploaded to Play until signed with the owner's private upload key. Debug signing is for testing only. Each fresh CI runner may generate a different debug key; do not uninstall the tested app to replace it without understanding that local progress may be lost.
 
-Before publishing: review child-directed app policies, privacy/data-safety disclosures, target API level, application ID, signing keys, screenshots and store listing. The $4.99 purchase price is set in Play Console, not in this source tree.
+## Release
+Read [release/PLAY_RELEASE.md](release/PLAY_RELEASE.md).
+A build passing is not Play approval or an offline test. Retest every game and progress persistence after the Capacitor/API upgrade.

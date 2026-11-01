@@ -1,0 +1,16 @@
+import { readFile, writeFile } from 'node:fs/promises';
+const manifestPath = new URL('../android/app/src/main/AndroidManifest.xml', import.meta.url);
+const gradlePath = new URL('../android/app/build.gradle', import.meta.url);
+const variablesPath = new URL('../android/variables.gradle', import.meta.url);
+const variables = await readFile(variablesPath, 'utf8');
+const target = variables.match(/targetSdkVersion\s*=\s*(\d+)/);
+if (!target || Number(target[1]) < 36) throw new Error('Release requires targetSdkVersion 36 or higher.');
+let manifest = await readFile(manifestPath, 'utf8');
+if (!manifest.includes('android:allowBackup=')) throw new Error('Android template changed: review backup settings.');
+manifest = manifest.replace(/android:allowBackup="[^"]*"/, 'android:allowBackup="false"');
+await writeFile(manifestPath, manifest);
+let gradle = await readFile(gradlePath, 'utf8');
+if (!/versionCode\s*(?:=\s*)?\d+/.test(gradle)) throw new Error('Android template changed: review versionCode.');
+gradle = gradle.replace(/versionCode\s*(?:=\s*)?\d+/, 'versionCode = 2');
+await writeFile(gradlePath, gradle);
+console.log('Android release preparation: API 36+, version code 2, cloud backup disabled.');

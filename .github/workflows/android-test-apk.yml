@@ -1,4 +1,4 @@
-name: Android test APK
+name: Android APK and release bundle
 
 on:
   push:
@@ -40,11 +40,18 @@ jobs:
         working-directory: android-app/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug bundleRelease --no-daemon
       - name: Upload test APK
         uses: actions/upload-artifact@v4
         with:
           name: Cielas-World-Learning-test-APK
           path: android-app/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload unsigned release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cielas-World-Learning-UNSIGNED-release-AAB
+          path: android-app/android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 30
