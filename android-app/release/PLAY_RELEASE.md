@@ -22,7 +22,7 @@ CI debug keys are not stable across fresh runners. A replacement debug APK may n
 
 ## Required before submission
 - Developer identity verification: owner reports still pending.
-- Confirm whether the account is Personal or Organization. New personal accounts generally require at least 12 closed-test participants opted in continuously for 14 days, followed by a production-access application.
+- Account type: Personal (confirmed by owner). As a new personal developer account, plan a Google Play closed test with at least 12 testers opted in continuously for at least 14 days, then apply for production access. Direct APK testing does not count toward that Play closed-test requirement. Recruit adult testers with Google accounts and Android devices; keep their email addresses out of this public repository.
 - Create an upload key privately on the owner's Windows computer via Android Studio > Build > Generate Signed App Bundle or APK > Android App Bundle. Back it up securely. Never commit the keystore, passwords, or signing properties to this public repository.
 - Enroll in Play App Signing as part of the Play setup. Never upload the CI debug APK as the paid production release.
 - CI's AAB is unsigned; do not submit it as-is. Build/sign the release AAB in Android Studio using the private upload key.
