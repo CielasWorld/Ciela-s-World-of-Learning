@@ -39,6 +39,13 @@ jobs:
       - name: Compile simulator app without signing
         run: |
           xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Upload compiled iPhone icon
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cielas-World-compiled-iPhone-icon
+          path: ios-app/build/Build/Products/Debug-iphonesimulator/App.app/AppIcon60x60@2x.png
+          if-no-files-found: error
+          retention-days: 14
       - name: Launch on iPhone simulator and capture layout
         run: |
           DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(d["udid"] for runtime,devices in data["devices"].items() if "iOS" in runtime for d in devices if d["name"].startswith("iPhone")))')

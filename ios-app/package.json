@@ -7,7 +7,7 @@
   },
   "scripts": {
     "ios:prepare": "node scripts/prepare-web.mjs",
-    "ios:sync": "npm run ios:prepare && npx cap sync ios",
+    "ios:sync": "npm run ios:prepare && node scripts/configure-icon.mjs && npx cap sync ios",
     "ios:open": "npx cap open ios"
   },
   "dependencies": {
