@@ -21,7 +21,7 @@ The game files and media are bundled, with no server.url configured. Review audi
 - Confirm Apple Developer Program enrollment and configure signing privately. Never commit Apple credentials, API private keys, certificates, or provisioning profiles.
 - Create the App Store Connect record and confirm bundle identifier ownership before first upload.
 - Replace template icons and splash visuals with the approved branding.
-- Add the final privacy policy inside the app's grown-up area and at a public URL; review the merged build's privacy manifest and disclosures.
+- Privacy & support is available behind the parent gate and bundled for offline reading. Public policy URL: https://cielasworld.github.io/Ciela-s-World-of-Learning/privacy.html. Review the final build's privacy manifest and disclosures before submission.
 - Review children's category, parental gates for external links, and iOS storage/backup behavior. Android's backup setting does not apply to iOS.
 - Use TestFlight for physical-device testing after signing and upload. The simulator artifact is not an installable IPA.
 - Repeat all 11 offline games and progress checks on iPhone. The previous Android test does not validate iOS.
@@ -29,3 +29,6 @@ The game files and media are bundled, with no server.url configured. Review audi
 - Keep the website coming-soon page in place until the owner authorizes a launch link.
 
 No Apple account has been enrolled, no purchase made, and nothing submitted to TestFlight or the App Store by this workflow.
+
+## Privacy implementation checks
+The November 2 change adds an offline native HTML dialog opened from For grown-ups > Privacy & support. It contains no external links or network fetches. A DOM check covered the gate, correct-answer navigation, opening the policy, support text and focus restoration on closing. Browser dialog behavior is additionally subject to iOS testing.

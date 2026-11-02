@@ -1204,6 +1204,11 @@ body{
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+.privacy-dialog{width:min(92vw,680px);max-height:85dvh;overflow:auto;border:0;border-radius:24px;padding:24px;background:#fff;color:#203d48;text-align:left;box-shadow:0 16px 65px #1238;font-family:'Nunito',sans-serif;line-height:1.65;overscroll-behavior:contain}
+.privacy-dialog::backdrop{background:#143b4dcc}
+.privacy-dialog h1,.privacy-dialog h2{font-family:'Baloo 2',sans-serif;line-height:1.25;margin:20px 0 10px}
+.privacy-dialog h1{font-size:28px;margin-top:0}.privacy-dialog h2{font-size:21px}
+.privacy-dialog p{margin:12px 0;font-size:16px}.privacy-dialog .privacy-close{position:sticky;bottom:0;display:block;margin:22px auto 0;background:#fff}
 </style>
 </head>
 <body>
@@ -1280,6 +1285,7 @@ body{
   <div class="row">
     <button class="go ghost" id="reportClose">Done</button>
     <button class="go ghost" id="reportCert">Certificate</button>
+    <button class="go ghost" id="reportPrivacy">Privacy &amp; support</button>
     <button class="go ghost danger" id="reportReset">Start over</button>
   </div>
 </div>
@@ -4708,6 +4714,37 @@ body{
       document.body.appendChild(box);
     }, 4000);
   }
+})();
+</script>
+<dialog class="privacy-dialog" id="privacyDialog" aria-labelledby="privacyHeading">
+<h1 id="privacyHeading">Privacy &amp; support</h1>
+<p><strong>Ciela's World of Learning</strong><br>Effective November 2, 2026</p>
+<h2>About the app</h2>
+<p>Ciela's World of Learning is an educational app for children ages 3–7. Games, pictures, and audio are included in the installation and can be used offline. There are no ads, subscriptions, in-app purchases, or user accounts.</p>
+<h2>Information used on your device</h2>
+<p>The app saves learning progress and game preferences locally on your device. It does not send learning progress to us. It does not include third-party advertising, analytics, or tracking services, and does not request access to your camera, microphone, contacts, or location.</p>
+<h2>Progress and deletion</h2>
+<p>Saved progress remains on the device until it is reset or app data is removed. A grown-up can use <strong>For grown-ups → Start over</strong> and confirm the reset to erase learning progress. This resets learning records; remaining app settings can be removed by clearing app data where supported or deleting the app. Device backup and restore settings may affect copies managed by your device provider; we cannot access those copies.</p>
+<h2>Purchases, distribution, and beta testing</h2>
+<p>Apple or Google handles app purchases, downloads, and any device diagnostics you choose to share under its own terms and privacy policy. We do not receive your payment-card details. If you participate in TestFlight or other store testing, the platform may provide us with feedback and diagnostic information you submit, such as crash reports, screenshots, and contact details. Beta testing is intended for grown-ups.</p>
+<h2>Support and privacy requests</h2>
+<p>A parent or guardian can contact the app developer at <strong>Eserenil10@gmail.com</strong> for support or to request deletion of support correspondence. Please do not send children's names, photos, or other identifying information.</p>
+<p>If you contact us, we receive your email address and the information you choose to send. We use it to answer your request and resolve app issues. Support correspondence is retained only as long as needed for those purposes or legal obligations, then deleted. Our email provider processes those messages to deliver and store email; support information is not used for advertising or sold.</p>
+<h2>Children's privacy</h2>
+<p>The app does not ask children to submit personal information. Parents or guardians may contact the support address if they believe a child has sent personal information so we can address the request and delete it where applicable.</p>
+<h2>Changes to this policy</h2>
+<p>We will update this page and its effective date if our privacy practices change. This policy covers the mobile app. The public website is hosted by GitHub Pages, whose hosting services may process technical request information under GitHub's own privacy practices.</p>
+<form method="dialog"><button class="go ghost privacy-close" autofocus>Done</button></form>
+</dialog>
+<script>
+(function(){
+  var button = document.getElementById('reportPrivacy');
+  var dialog = document.getElementById('privacyDialog');
+  button.addEventListener('click', function(){
+    dialog.showModal();
+    dialog.scrollTop = 0;
+  });
+  dialog.addEventListener('close', function(){ button.focus(); });
 })();
 </script>
 </body>
