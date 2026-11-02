@@ -5,6 +5,8 @@ on:
     branches: [ios-offline-development]
     paths:
       - 'ios-app/**'
+      - 'index.html'
+      - 'privacy.html'
       - '.github/workflows/ios-simulator-build.yml'
   workflow_dispatch:
 
@@ -37,6 +39,23 @@ jobs:
       - name: Compile simulator app without signing
         run: |
           xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Launch on iPhone simulator and capture layout
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(d["udid"] for runtime,devices in data["devices"].items() if "iOS" in runtime for d in devices if d["name"].startswith("iPhone")))')
+          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          xcrun simctl install "$DEVICE_ID" build/Build/Products/Debug-iphonesimulator/App.app
+          xcrun simctl launch "$DEVICE_ID" org.cielasworld.learning
+          sleep 8
+          xcrun simctl io "$DEVICE_ID" screenshot build/iphone-launch.png
+          xcrun simctl terminate "$DEVICE_ID" org.cielasworld.learning
+      - name: Upload iPhone layout screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cielas-World-iPhone-layout
+          path: ios-app/build/iphone-launch.png
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload simulator app
         uses: actions/upload-artifact@v4
         with:
