@@ -26,6 +26,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check release script syntax
+        run: |
+          python3 -m py_compile scripts/configure-signing.py
+          ruby -c scripts/configure-signing.rb
       - name: Check Apple tools
         run: xcodebuild -version
       - name: Install iOS dependencies
