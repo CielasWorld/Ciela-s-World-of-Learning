@@ -2,6 +2,9 @@ name: iOS signed App Store build
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ios-offline-development]
+    paths: ['ios-app/release/build-request.txt']
 
 permissions:
   contents: read

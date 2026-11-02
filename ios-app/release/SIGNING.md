@@ -1,6 +1,6 @@
 # iPhone App Store signing
 
-The manually triggered `iOS signed App Store build` workflow runs only on
+The `iOS signed App Store build` workflow runs only on
 `ios-offline-development`. It creates an App Store IPA; it does not upload to
 Apple, invite testers, submit a review, or publish a release.
 
@@ -22,8 +22,10 @@ password together allow signing applications for the Apple developer team.
 
 ## Build
 
-Select Actions → iOS signed App Store build → Run workflow, choose
-`ios-offline-development`, then run. Download `Cielas-World-signed-AppStore-IPA`
+Request a build by updating `ios-app/release/build-request.txt` on
+`ios-offline-development`. Other source changes do not trigger signing. The
+GitHub manual-run button requires the workflow on the default branch; it is
+intentionally absent there to leave `main` unchanged. Download `Cielas-World-signed-AppStore-IPA`
 after success. App Store IPAs are uploaded to App Store Connect for TestFlight;
 they cannot be installed directly on an iPhone as an Android APK can.
 
