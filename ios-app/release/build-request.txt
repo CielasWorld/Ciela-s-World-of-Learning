@@ -1,1 +1,1 @@
-Signed iOS build requested by owner, 2026-11-02, request 1.
+Signed iOS build requested by owner, 2026-11-02, request 2: macOS Keychain PKCS12 compatibility.
