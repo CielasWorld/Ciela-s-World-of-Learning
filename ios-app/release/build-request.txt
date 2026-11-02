@@ -1,1 +1,1 @@
-Signed iOS build requested by owner, 2026-11-02, request 2: macOS Keychain PKCS12 compatibility.
+Signed iOS build requested by owner, 2026-11-02, request 3: validated encrypted PEM conversion.
