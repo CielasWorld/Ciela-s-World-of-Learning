@@ -4,7 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches: [ios-offline-development]
-    paths: ['.github/workflows/ios-release-screenshots.yml']
+    paths:
+      - '.github/workflows/ios-release-screenshots.yml'
+      - 'ios-app/scripts/configure-release-ui-tests.rb'
+      - 'ios-app/release/ReleaseUITests.swift'
 
 permissions:
   contents: read
