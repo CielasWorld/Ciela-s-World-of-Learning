@@ -6,7 +6,9 @@ final class ReleaseUITests: XCTestCase {
         let app = XCUIApplication(bundleIdentifier: "org.cielasworld.learning")
         app.launch()
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 30))
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55)).tap()
+        let begin = app.staticTexts["Tap anywhere to begin"]
+        XCTAssertTrue(begin.waitForExistence(timeout: 30))
+        begin.tap()
         let numbers = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Numbers")).firstMatch
         XCTAssertTrue(numbers.waitForExistence(timeout: 20), app.debugDescription)
         capture("01-learning-menu", app)
