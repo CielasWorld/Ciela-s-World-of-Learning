@@ -1,1 +1,1 @@
-Signed iOS build requested by owner, 2026-11-02, request 3: validated encrypted PEM conversion.
+Signed iOS build requested for the tester-reported missing music and Ciela narration, 2026-11-04. Include the bundled-audio resolver fix f3fe25684989ff49ed8568419a5bac72999be95e. Keep website, Android, and main unchanged. Do not ship test instrumentation.
