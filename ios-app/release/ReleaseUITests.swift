@@ -1,6 +1,26 @@
 import XCTest
 
 final class ReleaseUITests: XCTestCase {
+    func testMusicAndCielaVoicePlay() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication(bundleIdentifier: "org.cielasworld.learning")
+        app.launch()
+        let begin = app.staticTexts["Tap anywhere to begin"]
+        XCTAssertTrue(begin.waitForExistence(timeout: 30))
+        begin.tap()
+        XCTAssertTrue(app.staticTexts["Audio verified: title-theme.mp3"].waitForExistence(timeout: 20), "Menu music did not advance in WKWebView")
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Numbers")).firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Audio verified: theme.mp3"].waitForExistence(timeout: 20), "Gameplay music did not advance in WKWebView")
+        let narration = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Audio verified: audiofind-" )).firstMatch
+        XCTAssertTrue(narration.waitForExistence(timeout: 20), "Ciela's voice did not advance in WKWebView")
+        app.buttons["Back to the games"].tap()
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(begin.waitForExistence(timeout: 30))
+        begin.tap()
+        XCTAssertTrue(app.staticTexts["Audio verified: title-theme.mp3"].waitForExistence(timeout: 20), "Music failed after a fresh launch")
+    }
+
     func testEveryActivityOpensAndCaptureScreenshots() throws {
         continueAfterFailure = false
         let app = XCUIApplication(bundleIdentifier: "org.cielasworld.learning")

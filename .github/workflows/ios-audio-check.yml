@@ -1,0 +1,51 @@
+name: iOS music and voice playback checks
+on:
+  workflow_dispatch:
+  push:
+    branches: [ios-offline-development]
+    paths:
+      - 'ios-app/scripts/bundle-audio*'
+      - 'ios-app/scripts/prepare-web.mjs'
+      - 'ios-app/release/audio-playback-probe.js'
+      - 'ios-app/release/ReleaseUITests.swift'
+      - '.github/workflows/ios-audio-check.yml'
+permissions:
+  contents: read
+jobs:
+  audio-playback:
+    runs-on: macos-26
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ios-app
+    env:
+      CIELA_AUDIO_TEST: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify offline resolver and prepare native test app
+        run: |
+          node --test scripts/bundle-audio.test.mjs
+          npm install
+          npm run ios:prepare
+          npx cap add ios
+          npm run ios:sync
+          gem install --user-install xcodeproj --no-document
+          ruby scripts/configure-release-ui-tests.rb
+      - name: Prove music and narration playback on iPhone and iPad
+        run: |
+          set -euo pipefail
+          for KIND in iPhone iPad; do
+            DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; k=sys.argv[1]; print(next(d["udid"] for r,ds in json.load(sys.stdin)["devices"].items() if "iOS" in r for d in ds if d["name"].startswith(k)))' "$KIND")
+            xcodebuild -project ios/App/App.xcodeproj -scheme ReleaseScreenshots -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE_ID" -derivedDataPath build/audio-derived -resultBundlePath "build/audio-$KIND.xcresult" -only-testing:ReleaseUITests/ReleaseUITests/testMusicAndCielaVoicePlay CODE_SIGNING_ALLOWED=NO test
+            xcrun simctl shutdown "$DEVICE_ID" || true
+          done
+      - name: Save playback test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ciela-native-audio-tests
+          path: ios-app/build/audio-*.xcresult
+          retention-days: 14
