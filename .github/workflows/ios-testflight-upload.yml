@@ -30,11 +30,11 @@ jobs:
           test -n "$ASC_KEY_ID" || { echo 'Missing upload key ID'; exit 1; }
           test -n "$ASC_ISSUER_ID" || { echo 'Missing upload issuer ID'; exit 1; }
           test -n "$ASC_PRIVATE_KEY_BASE64" || { echo 'Missing upload private key'; exit 1; }
-      - name: Download verified signed build 3
+      - name: Download verified signed build 4
         uses: actions/download-artifact@v4
         with:
-          artifact-ids: '13181945323'
-          run-id: '41529085918'
+          artifact-ids: '13324623620'
+          run-id: '41835179594'
           github-token: ${{ github.token }}
           path: signed-package
           merge-multiple: true
@@ -49,9 +49,9 @@ jobs:
               info = plistlib.loads(archive.read('Payload/App.app/Info.plist'))
           if info.get('CFBundleIdentifier') != 'org.cielasworld.learning':
               raise SystemExit('Wrong app bundle')
-          if info.get('CFBundleShortVersionString') != '1.0' or str(info.get('CFBundleVersion')) != '3':
+          if info.get('CFBundleShortVersionString') != '1.0' or str(info.get('CFBundleVersion')) != '4':
               raise SystemExit('Wrong version or build number')
-          print('Verified Ciela app version 1.0, build 3')
+          print('Verified Ciela app version 1.0, build 4')
           PY
       - name: Validate and upload to Apple
         env:

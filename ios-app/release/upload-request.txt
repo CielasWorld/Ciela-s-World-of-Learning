@@ -1,1 +1,1 @@
-Owner-approved upload of Ciela iOS version 1.0 build 3 to App Store Connect for TestFlight. Request 1, 2026-11-02.
+Upload Ciela iOS version 1.0 build 4 to TestFlight after native audio verification passes. Fixes tester-reported missing music and Ciela narration. Signed artifact 13324623620 from run 41835179594. Do not submit for public App Store review.
